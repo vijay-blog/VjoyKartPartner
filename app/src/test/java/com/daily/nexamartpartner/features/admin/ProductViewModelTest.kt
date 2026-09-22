@@ -15,11 +15,13 @@ import com.daily.nexamartpartner.features.admin.domain.model.ProductSummary
 import com.daily.nexamartpartner.features.admin.domain.model.ProductsQuery
 import com.daily.nexamartpartner.features.admin.domain.repository.ProductManagementRepository
 import com.daily.nexamartpartner.features.admin.domain.usecase.CreateProductUseCase
+import com.daily.nexamartpartner.features.admin.domain.usecase.DeleteProductImageUseCase
 import com.daily.nexamartpartner.features.admin.domain.usecase.GetProductCategoryOptionsUseCase
 import com.daily.nexamartpartner.features.admin.domain.usecase.GetProductDetailsUseCase
 import com.daily.nexamartpartner.features.admin.domain.usecase.GetProductsUseCase
 import com.daily.nexamartpartner.features.admin.domain.usecase.PerformProductAdminActionUseCase
 import com.daily.nexamartpartner.features.admin.domain.usecase.UpdateProductUseCase
+import com.daily.nexamartpartner.features.admin.domain.usecase.UploadProductImageUseCase
 import com.daily.nexamartpartner.features.admin.presentation.state.ProductDetailsUiState
 import com.daily.nexamartpartner.features.admin.presentation.state.ProductFormUiState
 import com.daily.nexamartpartner.features.admin.presentation.state.ProductListUiState
@@ -269,7 +271,9 @@ class ProductViewModelTest {
             null,
             GetProductCategoryOptionsUseCase(repo),
             CreateProductUseCase(repo),
-            UpdateProductUseCase(repo)
+            UpdateProductUseCase(repo),
+            UploadProductImageUseCase(repo),
+            DeleteProductImageUseCase(repo)
         )
         advanceUntilIdle()
         vm.save()
@@ -290,7 +294,9 @@ class ProductViewModelTest {
             null,
             GetProductCategoryOptionsUseCase(repo),
             CreateProductUseCase(repo),
-            UpdateProductUseCase(repo)
+            UpdateProductUseCase(repo),
+            UploadProductImageUseCase(repo),
+            DeleteProductImageUseCase(repo)
         )
         advanceUntilIdle()
         vm.onNameChanged("Rice")
@@ -318,7 +324,9 @@ class ProductViewModelTest {
             null,
             GetProductCategoryOptionsUseCase(repo),
             CreateProductUseCase(repo),
-            UpdateProductUseCase(repo)
+            UpdateProductUseCase(repo),
+            UploadProductImageUseCase(repo),
+            DeleteProductImageUseCase(repo)
         )
         advanceUntilIdle()
         vm.onNameChanged("Rice")
@@ -343,7 +351,9 @@ class ProductViewModelTest {
             null,
             GetProductCategoryOptionsUseCase(repo),
             CreateProductUseCase(repo),
-            UpdateProductUseCase(repo)
+            UpdateProductUseCase(repo),
+            UploadProductImageUseCase(repo),
+            DeleteProductImageUseCase(repo)
         )
         advanceUntilIdle()
         vm.onNameChanged("Rice")
@@ -368,7 +378,9 @@ class ProductViewModelTest {
             GetProductDetailsUseCase(repo),
             GetProductCategoryOptionsUseCase(repo),
             CreateProductUseCase(repo),
-            UpdateProductUseCase(repo)
+            UpdateProductUseCase(repo),
+            UploadProductImageUseCase(repo),
+            DeleteProductImageUseCase(repo)
         )
         advanceUntilIdle()
         assertEquals("Rice 5kg", vm.uiState.value.name)
@@ -389,7 +401,9 @@ class ProductViewModelTest {
             GetProductDetailsUseCase(repo),
             GetProductCategoryOptionsUseCase(repo),
             CreateProductUseCase(repo),
-            UpdateProductUseCase(repo)
+            UpdateProductUseCase(repo),
+            UploadProductImageUseCase(repo),
+            DeleteProductImageUseCase(repo)
         )
         advanceUntilIdle()
         vm.onNameChanged("My unsaved name")

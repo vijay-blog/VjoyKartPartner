@@ -170,8 +170,10 @@ public class CatalogService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Only JPG, PNG and WEBP images are supported.");
         List<ProductImage> existing = productImages.findByProductIdOrderBySortOrderAscIdAsc(productId);
         if (existing.size() >= 3) throw new ApiException(HttpStatus.CONFLICT, "A product can have a maximum of 3 images.");
-        int sortOrder = requestedSortOrder == null ? existing.size() : Math.max(0, Math.min(2, requestedSortOrder));
-        if (existing.stream().anyMatch(i -> i.getSortOrder() == sortOrder)) sortOrder = existing.size();
+        int requestedOrder = requestedSortOrder == null ? existing.size() : Math.max(0, Math.min(2, requestedSortOrder));
+        int sortOrder = existing.stream().anyMatch(i -> i.getSortOrder() == requestedOrder)
+            ? existing.size()
+            : requestedOrder;
         ProductImage image = new ProductImage();
         image.setProduct(product); image.setImageData(data); image.setContentType(contentType);
         image.setFileName(fileName == null ? "product-image" : fileName.replaceAll("[^a-zA-Z0-9._-]", "_"));

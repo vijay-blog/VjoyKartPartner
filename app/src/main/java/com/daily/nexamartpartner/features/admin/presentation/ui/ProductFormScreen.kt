@@ -19,6 +19,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.daily.nexamartpartner.BuildConfig
 import com.daily.nexamartpartner.R
 import com.daily.nexamartpartner.core.widgets.UiFeedback
 import com.daily.nexamartpartner.databinding.FragmentAdminProductFormBinding
@@ -312,8 +313,8 @@ class ProductFormScreen : Fragment(R.layout.fragment_admin_product_form) {
                 }else{
                     BuildConfig.BASE_URL.removeSuffix("/")+"/"+url.trimStart('/')
                 }
-                val bitmap=java.net.HttpURLConnection::class.java.let {
-                    val c=(full.openConnection() as java.net.HttpURLConnection);c.connectTimeout=10000;c.readTimeout=15000;c.inputStream.use{BitmapFactory.decodeStream(it)}
+                val bitmap=java.net.URL(full).openConnection().let { connection ->
+                    val c=connection as java.net.HttpURLConnection;c.connectTimeout=10000;c.readTimeout=15000;c.inputStream.use{BitmapFactory.decodeStream(it)}
                 }
                 if(bitmap!=null) withContext(Dispatchers.Main){ if(isAdded) imageView.setImageBitmap(bitmap) }
             }catch(_:Exception){}

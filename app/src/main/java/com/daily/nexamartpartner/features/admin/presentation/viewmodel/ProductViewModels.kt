@@ -10,6 +10,7 @@ import com.daily.nexamartpartner.features.admin.domain.model.PagedProducts
 import com.daily.nexamartpartner.features.admin.domain.model.ProductAdminAction
 import com.daily.nexamartpartner.features.admin.domain.model.ProductDraft
 import com.daily.nexamartpartner.features.admin.domain.model.ProductFilters
+import com.daily.nexamartpartner.features.admin.domain.model.ProductImageUpload
 import com.daily.nexamartpartner.features.admin.domain.model.ProductSort
 import com.daily.nexamartpartner.features.admin.domain.model.ProductSummary
 import com.daily.nexamartpartner.features.admin.domain.model.ProductsQuery

@@ -5,6 +5,7 @@ import com.daily.nexamartpartner.core.result.AppResult
 import com.daily.nexamartpartner.core.result.FailureType
 import com.daily.nexamartpartner.features.admin.data.model.CategoryOptionDto
 import com.daily.nexamartpartner.features.admin.data.model.ProductDetailsDto
+import com.daily.nexamartpartner.features.admin.data.model.ProductImageDto
 import com.daily.nexamartpartner.features.admin.data.model.ProductSummaryDto
 import com.daily.nexamartpartner.features.admin.data.model.ProductsPageDto
 import com.daily.nexamartpartner.features.admin.data.repository.ProductManagementRepositoryImpl
@@ -275,5 +276,14 @@ class ProductManagementRepositoryImplTest {
         override suspend fun createProduct(draft: ProductDraft) = createResult
         override suspend fun updateProduct(productId: String, draft: ProductDraft) = updateResult
         override suspend fun performProductAction(productId: String, action: ProductAdminAction) = actionResult
+        override suspend fun uploadProductImage(
+            productId: String,
+            file: okhttp3.MultipartBody.Part,
+            sortOrder: Int
+        ): AppResult<ProductImageDto> = AppResult.Failure(
+            AppFailure("Not used", type = FailureType.UNKNOWN)
+        )
+        override suspend fun deleteProductImage(productId: String, imageId: Long): AppResult<Unit> =
+            AppResult.Failure(AppFailure("Not used", type = FailureType.UNKNOWN))
     }
 }

@@ -20,7 +20,7 @@ interface ProductManagementRepository {
     suspend fun updateProduct(productId: String, draft: ProductDraft): AppResult<ProductDetails>
     suspend fun performProductAction(productId: String, action: ProductAdminAction): AppResult<Unit>
     suspend fun uploadProductImage(productId: String, file: okhttp3.MultipartBody.Part, sortOrder: Int): AppResult<ProductImage> =
-        AppResult.Failure(com.daily.nexamartpartner.core.result.AppFailure("Image upload is not supported by this repository implementation.", com.daily.nexamartpartner.core.result.FailureType.CONTRACT_MISSING))
+        AppResult.Failure(com.daily.nexamartpartner.core.result.AppFailure("Image upload is not supported by this repository implementation.", type = com.daily.nexamartpartner.core.result.FailureType.CONTRACT_MISSING))
     suspend fun deleteProductImage(productId: String, imageId: Long): AppResult<Unit> =
-        AppResult.Failure(com.daily.nexamartpartner.core.result.AppFailure("Image deletion is not supported by this repository implementation.", com.daily.nexamartpartner.core.result.FailureType.CONTRACT_MISSING))
+        AppResult.Failure(com.daily.nexamartpartner.core.result.AppFailure("Image deletion is not supported by this repository implementation.", type = com.daily.nexamartpartner.core.result.FailureType.CONTRACT_MISSING))
 }
