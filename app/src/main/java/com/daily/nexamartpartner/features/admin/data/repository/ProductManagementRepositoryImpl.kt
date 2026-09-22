@@ -13,6 +13,7 @@ import com.daily.nexamartpartner.features.admin.domain.model.PagedProducts
 import com.daily.nexamartpartner.features.admin.domain.model.ProductAdminAction
 import com.daily.nexamartpartner.features.admin.domain.model.ProductAvailability
 import com.daily.nexamartpartner.features.admin.domain.model.ProductDetails
+import com.daily.nexamartpartner.features.admin.domain.model.ProductImage
 import com.daily.nexamartpartner.features.admin.domain.model.ProductDraft
 import com.daily.nexamartpartner.features.admin.domain.model.ProductFilters
 import com.daily.nexamartpartner.features.admin.domain.model.ProductSort
@@ -68,6 +69,18 @@ class ProductManagementRepositoryImpl(
         return remoteDataSource.performProductAction(productId, action)
     }
 
+    override suspend fun uploadProductImage(productId: String, file: okhttp3.MultipartBody.Part, sortOrder: Int): AppResult<ProductImage> {
+        return when (val result = remoteDataSource.uploadProductImage(productId, file, sortOrder)) {
+            is AppResult.Success -> AppResult.Success(
+                ProductImage(result.data.imageId ?: 0L, result.data.url?.trim().orEmpty(), result.data.sortOrder ?: sortOrder)
+            )
+            is AppResult.Failure -> result
+        }
+    }
+
+    override suspend fun deleteProductImage(productId: String, imageId: Long): AppResult<Unit> =
+        remoteDataSource.deleteProductImage(productId, imageId)
+
     private fun mapProductPage(
         dto: ProductsPageDto,
         fallbackPage: Int,
@@ -115,7 +128,8 @@ class ProductManagementRepositoryImpl(
             unit = dto.unit?.trim(),
             status = status,
             availability = ProductAvailability.fromRaw(dto.availability),
-            imageUrl = dto.imageUrl?.trim()
+            imageUrl = dto.imageUrl?.trim(),
+            images = dto.images.orEmpty().mapNotNull { it.imageId?.let { id -> ProductImage(id, it.url?.trim().orEmpty(), it.sortOrder ?: 0) } }
         )
     }
 
@@ -154,6 +168,7 @@ class ProductManagementRepositoryImpl(
                 status = status,
                 availability = ProductAvailability.fromRaw(dto.availability),
                 imageUrl = dto.imageUrl?.trim(),
+                images = dto.images.orEmpty().mapNotNull { it.imageId?.let { id -> ProductImage(id, it.url?.trim().orEmpty(), it.sortOrder ?: 0) } },
                 createdAt = dto.createdAt?.trim(),
                 updatedAt = dto.updatedAt?.trim(),
                 allowedActions = allowedActions

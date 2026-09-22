@@ -17,10 +17,11 @@ public class CatalogService {
     final CategoryRepository cats;
     final ProductRepository products;
     final OrderItemRepository orderItems;
+    final ProductImageRepository productImages;
     final MappingService map;
 
-    public CatalogService(CategoryRepository c, ProductRepository p, OrderItemRepository oi, MappingService m) {
-        cats = c; products = p; orderItems = oi; map = m;
+    public CatalogService(CategoryRepository c, ProductRepository p, OrderItemRepository oi, ProductImageRepository pi, MappingService m) {
+        cats = c; products = p; orderItems = oi; productImages = pi; map = m;
     }
 
     public PageResponse<CategoryResponse> categories(int page, int size, String q, Boolean active) {
@@ -147,6 +148,7 @@ public class CatalogService {
             case "DELETE" -> {
                 if (orderItems.existsByProductId(id))
                     throw new ApiException(HttpStatus.CONFLICT, "This product is used by existing orders. Deactivate it instead of deleting it.");
+                productImages.deleteByProductId(id);
                 products.delete(x);
                 return;
             }
@@ -157,6 +159,35 @@ public class CatalogService {
 
     public ProductResponse productDetail(Long id) {
         return map.product(products.findById(id).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Product not found.")));
+    }
+
+    @Transactional
+    public ProductImage uploadProductImage(Long productId, byte[] data, String contentType, String fileName, Integer requestedSortOrder) {
+        Product product = products.findById(productId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Product not found."));
+        if (data == null || data.length == 0) throw new ApiException(HttpStatus.BAD_REQUEST, "Image is empty.");
+        if (data.length > 5 * 1024 * 1024) throw new ApiException(HttpStatus.PAYLOAD_TOO_LARGE, "Each image must be 5 MB or smaller.");
+        if (contentType == null || !Set.of("image/jpeg", "image/png", "image/webp").contains(contentType.toLowerCase(Locale.ROOT)))
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Only JPG, PNG and WEBP images are supported.");
+        List<ProductImage> existing = productImages.findByProductIdOrderBySortOrderAscIdAsc(productId);
+        if (existing.size() >= 3) throw new ApiException(HttpStatus.CONFLICT, "A product can have a maximum of 3 images.");
+        int sortOrder = requestedSortOrder == null ? existing.size() : Math.max(0, Math.min(2, requestedSortOrder));
+        if (existing.stream().anyMatch(i -> i.getSortOrder() == sortOrder)) sortOrder = existing.size();
+        ProductImage image = new ProductImage();
+        image.setProduct(product); image.setImageData(data); image.setContentType(contentType);
+        image.setFileName(fileName == null ? "product-image" : fileName.replaceAll("[^a-zA-Z0-9._-]", "_"));
+        image.setSortOrder(sortOrder);
+        return productImages.save(image);
+    }
+
+    @Transactional
+    public void deleteProductImage(Long productId, Long imageId) {
+        Product product = products.findById(productId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Product not found."));
+        ProductImage image = productImages.findById(imageId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Product image not found."));
+        if (!image.getProduct().getId().equals(product.getId())) throw new ApiException(HttpStatus.NOT_FOUND, "Product image not found.");
+        productImages.delete(image);
+        List<ProductImage> remaining = productImages.findByProductIdOrderBySortOrderAscIdAsc(productId);
+        for (int i = 0; i < remaining.size(); i++) remaining.get(i).setSortOrder(i);
+        productImages.saveAll(remaining);
     }
 
     public List<CategoryOption> categoryOptions() {

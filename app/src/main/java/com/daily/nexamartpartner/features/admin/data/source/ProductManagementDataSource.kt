@@ -11,13 +11,20 @@ import com.daily.nexamartpartner.features.admin.data.model.ProductsPageDto
 import com.daily.nexamartpartner.features.admin.domain.model.ProductAdminAction
 import com.daily.nexamartpartner.features.admin.domain.model.ProductDraft
 import com.daily.nexamartpartner.features.admin.domain.model.ProductsQuery
+import okhttp3.MultipartBody
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.DELETE
+import retrofit2.http.Multipart
 import retrofit2.http.PATCH
+import retrofit2.http.Part
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.QueryMap
+import retrofit2.http.Path
 import retrofit2.http.Url
 
 interface ProductManagementApi {
@@ -50,6 +57,17 @@ interface ProductManagementApi {
         @Url path: String,
         @Body body: Map<String, String>
     ): Response<Unit>
+
+    @Multipart
+    @POST
+    suspend fun uploadProductImage(
+        @Url path: String,
+        @Part file: MultipartBody.Part,
+        @retrofit2.http.Part("sortOrder") sortOrder: okhttp3.RequestBody?
+    ): Response<com.daily.nexamartpartner.features.admin.data.model.ProductImageDto>
+
+    @DELETE
+    suspend fun deleteProductImage(@Url path: String): Response<Unit>
 }
 
 interface ProductManagementRemoteDataSource {
@@ -59,6 +77,8 @@ interface ProductManagementRemoteDataSource {
     suspend fun createProduct(draft: ProductDraft): AppResult<ProductDetailsDto>
     suspend fun updateProduct(productId: String, draft: ProductDraft): AppResult<ProductDetailsDto>
     suspend fun performProductAction(productId: String, action: ProductAdminAction): AppResult<Unit>
+    suspend fun uploadProductImage(productId: String, file: MultipartBody.Part, sortOrder: Int): AppResult<com.daily.nexamartpartner.features.admin.data.model.ProductImageDto>
+    suspend fun deleteProductImage(productId: String, imageId: Long): AppResult<Unit>
 }
 
 class ProductManagementRemoteDataSourceImpl(
@@ -112,6 +132,20 @@ class ProductManagementRemoteDataSourceImpl(
         val body = contract.buildProductActionBody(action)
             ?: return contractMissing("Product action request contract is not confirmed yet.")
         return when (val result = executor.execute { api.performProductAction(path, body) }) {
+            is AppResult.Success -> AppResult.Success(Unit)
+            is AppResult.Failure -> result
+        }
+    }
+
+    override suspend fun uploadProductImage(productId: String, file: MultipartBody.Part, sortOrder: Int): AppResult<com.daily.nexamartpartner.features.admin.data.model.ProductImageDto> {
+        val path = "admin/products/$productId/images"
+        val order = sortOrder.toString().toRequestBody("text/plain".toMediaType())
+        return executor.execute { api.uploadProductImage(path, file, order) }
+    }
+
+    override suspend fun deleteProductImage(productId: String, imageId: Long): AppResult<Unit> {
+        val path = "admin/products/$productId/images/$imageId"
+        return when (val result = executor.execute { api.deleteProductImage(path) }) {
             is AppResult.Success -> AppResult.Success(Unit)
             is AppResult.Failure -> result
         }

@@ -12,8 +12,8 @@ android {
         applicationId = "com.daily.nexamartpartner"
         minSdk = 24
         targetSdk = 37
-        versionCode = 3
-        versionName = "1.1.0"
+        versionCode = 5
+        versionName = "1.1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -4,6 +4,7 @@ import com.daily.nexamartpartner.core.result.AppResult
 import com.daily.nexamartpartner.features.admin.domain.model.CategoryOption
 import com.daily.nexamartpartner.features.admin.domain.model.PagedProducts
 import com.daily.nexamartpartner.features.admin.domain.model.ProductAdminAction
+import com.daily.nexamartpartner.features.admin.domain.model.ProductImage
 import com.daily.nexamartpartner.features.admin.domain.model.ProductDetails
 import com.daily.nexamartpartner.features.admin.domain.model.ProductDraft
 import com.daily.nexamartpartner.features.admin.domain.model.ProductsQuery
@@ -37,4 +38,15 @@ class UpdateProductUseCase(private val repository: ProductManagementRepository) 
 class PerformProductAdminActionUseCase(private val repository: ProductManagementRepository) {
     suspend operator fun invoke(productId: String, action: ProductAdminAction): AppResult<Unit> =
         repository.performProductAction(productId, action)
+}
+
+
+class UploadProductImageUseCase(private val repository: ProductManagementRepository) {
+    suspend operator fun invoke(productId: String, file: okhttp3.MultipartBody.Part, sortOrder: Int): AppResult<ProductImage> =
+        repository.uploadProductImage(productId, file, sortOrder)
+}
+
+class DeleteProductImageUseCase(private val repository: ProductManagementRepository) {
+    suspend operator fun invoke(productId: String, imageId: Long): AppResult<Unit> =
+        repository.deleteProductImage(productId, imageId)
 }

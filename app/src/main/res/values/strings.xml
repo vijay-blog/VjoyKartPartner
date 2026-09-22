@@ -182,6 +182,8 @@
     <string name="admin_product_form_sku_hint">SKU (optional)</string>
     <string name="admin_product_form_unit_hint">Unit (optional)</string>
     <string name="admin_product_form_save">Save Product</string>
+    <string name="admin_product_form_images_count">%1$d/3 images</string>
+    <string name="admin_product_form_image_content_description">Product image</string>
     <string name="admin_product_form_categories_unavailable">Category options are unavailable until the backend category lookup contract is confirmed.</string>
     <string name="admin_product_form_unsaved_title">Discard changes?</string>
     <string name="admin_product_form_unsaved_message">You have unsaved changes. Are you sure you want to leave without saving?</string>

@@ -2,6 +2,8 @@ package com.daily.nexamartpartner.features.admin.presentation.state
 
 import com.daily.nexamartpartner.features.admin.domain.model.CategoryOption
 import com.daily.nexamartpartner.features.admin.domain.model.ProductAdminAction
+import com.daily.nexamartpartner.features.admin.domain.model.ProductImage
+import com.daily.nexamartpartner.features.admin.domain.model.ProductImageUpload
 import com.daily.nexamartpartner.features.admin.domain.model.ProductDetails
 import com.daily.nexamartpartner.features.admin.domain.model.ProductFilters
 import com.daily.nexamartpartner.features.admin.domain.model.ProductSort
@@ -55,6 +57,9 @@ data class ProductFormUiState(
     val stock: String = "",
     val sku: String = "",
     val unit: String = "",
+    val existingImages: List<ProductImage> = emptyList(),
+    val selectedImages: List<ProductImageUpload> = emptyList(),
+    val removedImageIds: Set<Long> = emptySet(),
     val fieldErrors: FieldErrors = FieldErrors(),
     val content: Content = Content.Editing
 ) {

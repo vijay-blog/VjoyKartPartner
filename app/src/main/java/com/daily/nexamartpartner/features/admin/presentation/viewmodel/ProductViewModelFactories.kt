@@ -6,6 +6,8 @@ import com.daily.nexamartpartner.features.admin.domain.usecase.CreateProductUseC
 import com.daily.nexamartpartner.features.admin.domain.usecase.GetProductCategoryOptionsUseCase
 import com.daily.nexamartpartner.features.admin.domain.usecase.GetProductDetailsUseCase
 import com.daily.nexamartpartner.features.admin.domain.usecase.GetProductsUseCase
+import com.daily.nexamartpartner.features.admin.domain.usecase.UploadProductImageUseCase
+import com.daily.nexamartpartner.features.admin.domain.usecase.DeleteProductImageUseCase
 import com.daily.nexamartpartner.features.admin.domain.usecase.PerformProductAdminActionUseCase
 import com.daily.nexamartpartner.features.admin.domain.usecase.UpdateProductUseCase
 import com.daily.nexamartpartner.features.admin.presentation.state.ProductFormUiState
@@ -39,7 +41,9 @@ class ProductFormViewModelFactory(
     private val getProductDetails: GetProductDetailsUseCase?,
     private val getCategoryOptions: GetProductCategoryOptionsUseCase,
     private val createProduct: CreateProductUseCase,
-    private val updateProduct: UpdateProductUseCase
+    private val updateProduct: UpdateProductUseCase,
+    private val uploadProductImage: UploadProductImageUseCase,
+    private val deleteProductImage: DeleteProductImageUseCase
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -50,7 +54,9 @@ class ProductFormViewModelFactory(
             getProductDetails,
             getCategoryOptions,
             createProduct,
-            updateProduct
+            updateProduct,
+            uploadProductImage,
+            deleteProductImage
         ) as T
     }
 }

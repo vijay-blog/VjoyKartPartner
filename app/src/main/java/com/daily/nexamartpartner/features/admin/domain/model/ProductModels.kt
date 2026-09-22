@@ -56,6 +56,12 @@ data class CategoryOption(
     val name: String
 )
 
+data class ProductImage(
+    val imageId: Long,
+    val url: String,
+    val sortOrder: Int
+)
+
 data class ProductSummary(
     val productId: String,
     val name: String,
@@ -70,7 +76,8 @@ data class ProductSummary(
     val unit: String?,
     val status: ProductStatus,
     val availability: ProductAvailability,
-    val imageUrl: String?
+    val imageUrl: String?,
+    val images: List<ProductImage> = emptyList()
 )
 
 data class PagedProducts(
@@ -111,6 +118,7 @@ data class ProductDetails(
     val status: ProductStatus,
     val availability: ProductAvailability,
     val imageUrl: String?,
+    val images: List<ProductImage> = emptyList(),
     val createdAt: String?,
     val updatedAt: String?,
     /** Only actions the backend currently allows for this product; never inferred locally. */
@@ -122,6 +130,12 @@ data class ProductDetails(
  * exact user-entered text is preserved for the backend request once the contract is confirmed.
  * All fields are optional because the backend's exact required-field set is unconfirmed.
  */
+data class ProductImageUpload(
+    val bytes: ByteArray,
+    val contentType: String,
+    val fileName: String
+)
+
 data class ProductDraft(
     val name: String,
     val description: String? = null,

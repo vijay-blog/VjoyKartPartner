@@ -33,6 +33,11 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.MultipartBody
+import okhttp3.MediaType.Companion.toMediaType
+import com.daily.nexamartpartner.features.admin.domain.usecase.DeleteProductImageUseCase
+import com.daily.nexamartpartner.features.admin.domain.usecase.UploadProductImageUseCase
 
 sealed interface ProductEvent {
     data object SessionExpired : ProductEvent
@@ -278,225 +283,119 @@ class ProductFormViewModel(
     private val getProductDetails: GetProductDetailsUseCase?,
     private val getCategoryOptions: GetProductCategoryOptionsUseCase,
     private val createProduct: CreateProductUseCase,
-    private val updateProduct: UpdateProductUseCase
+    private val updateProduct: UpdateProductUseCase,
+    private val uploadProductImage: UploadProductImageUseCase,
+    private val deleteProductImage: DeleteProductImageUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProductFormUiState(mode = mode))
     val uiState: StateFlow<ProductFormUiState> = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<ProductEvent>(extraBufferCapacity = 1)
     val events: SharedFlow<ProductEvent> = _events.asSharedFlow()
-
     private var loadJob: Job? = null
 
     init {
         loadCategoryOptions()
-        if (mode == ProductFormUiState.Mode.EDIT) {
-            loadProductForEdit()
+        if (mode == ProductFormUiState.Mode.EDIT) loadProductForEdit()
+    }
+
+    fun onNameChanged(value: String) { _uiState.update { it.copy(name=value,isDirty=true,fieldErrors=it.fieldErrors.copy(name=null)) } }
+    fun onDescriptionChanged(value: String) { _uiState.update { it.copy(description=value,isDirty=true) } }
+    fun onCategorySelected(value: String?) { _uiState.update { it.copy(selectedCategoryId=value,isDirty=true,fieldErrors=it.fieldErrors.copy(category=null)) } }
+    fun onPriceChanged(value: String) { _uiState.update { it.copy(price=value,isDirty=true,fieldErrors=it.fieldErrors.copy(price=null)) } }
+    fun onDiscountChanged(value: String) { _uiState.update { it.copy(discountPercent=value,isDirty=true,fieldErrors=it.fieldErrors.copy(discount=null)) } }
+    fun onStockChanged(value: String) { _uiState.update { it.copy(stock=value,isDirty=true,fieldErrors=it.fieldErrors.copy(stock=null)) } }
+    fun onSkuChanged(value: String) { _uiState.update { it.copy(sku=value,isDirty=true) } }
+    fun onUnitChanged(value: String) { _uiState.update { it.copy(unit=value,isDirty=true) } }
+
+    fun addImages(images: List<ProductImageUpload>) {
+        val state=_uiState.value
+        val available=3-state.existingImages.size+state.removedImageIds.size-state.selectedImages.size
+        if (available<=0) { _events.tryEmit(ProductEvent.Message("A product can have a maximum of 3 images.")); return }
+        val accepted=images.take(available)
+        if (accepted.isNotEmpty()) _uiState.update { it.copy(selectedImages=it.selectedImages+accepted,isDirty=true) }
+        if (accepted.size<images.size) _events.tryEmit(ProductEvent.Message("Only 3 images are allowed per product."))
+    }
+
+    fun removeSelectedImage(index:Int) {
+        _uiState.update { state ->
+            if (index !in state.selectedImages.indices) state else state.copy(selectedImages=state.selectedImages.toMutableList().also{it.removeAt(index)},isDirty=true)
         }
     }
 
-    fun onNameChanged(value: String) {
-        _uiState.update {
-            it.copy(name = value, isDirty = true, fieldErrors = it.fieldErrors.copy(name = null))
+    fun removeExistingImage(imageId:Long) {
+        _uiState.update { state ->
+            if (state.existingImages.none{it.imageId==imageId}) state else state.copy(removedImageIds=state.removedImageIds+imageId,isDirty=true)
         }
-    }
-
-    fun onDescriptionChanged(value: String) {
-        _uiState.update { it.copy(description = value, isDirty = true) }
-    }
-
-    fun onCategorySelected(categoryId: String?) {
-        _uiState.update {
-            it.copy(selectedCategoryId = categoryId, isDirty = true, fieldErrors = it.fieldErrors.copy(category = null))
-        }
-    }
-
-    fun onPriceChanged(value: String) {
-        _uiState.update {
-            it.copy(price = value, isDirty = true, fieldErrors = it.fieldErrors.copy(price = null))
-        }
-    }
-
-    fun onDiscountChanged(value: String) {
-        _uiState.update {
-            it.copy(discountPercent = value, isDirty = true, fieldErrors = it.fieldErrors.copy(discount = null))
-        }
-    }
-
-    fun onStockChanged(value: String) {
-        _uiState.update {
-            it.copy(stock = value, isDirty = true, fieldErrors = it.fieldErrors.copy(stock = null))
-        }
-    }
-
-    fun onSkuChanged(value: String) {
-        _uiState.update { it.copy(sku = value, isDirty = true) }
-    }
-
-    fun onUnitChanged(value: String) {
-        _uiState.update { it.copy(unit = value, isDirty = true) }
     }
 
     fun hasUnsavedChanges(): Boolean = _uiState.value.isDirty
-
-    fun retry() {
-        if (mode == ProductFormUiState.Mode.EDIT) loadProductForEdit()
-        loadCategoryOptions()
-    }
+    fun retry() { if(mode==ProductFormUiState.Mode.EDIT) loadProductForEdit(); loadCategoryOptions() }
 
     fun save() {
-        val state = _uiState.value
-        if (state.isSaving) return
-        val errors = validate(state)
-        if (!errors.isEmpty()) {
-            _uiState.update { it.copy(fieldErrors = errors) }
-            return
-        }
-
-        val draft = ProductDraft(
-            name = state.name.trim(),
-            description = state.description.trim().ifBlank { null },
-            categoryId = state.selectedCategoryId,
-            price = state.price.trim(),
-            discountPercent = state.discountPercent.trim().ifBlank { null },
-            stock = state.stock.trim().ifBlank { null },
-            sku = state.sku.trim().ifBlank { null },
-            unit = state.unit.trim().ifBlank { null }
-        )
-
+        val state=_uiState.value
+        if(state.isSaving)return
+        val errors=validate(state)
+        if(!errors.isEmpty()){_uiState.update{it.copy(fieldErrors=errors)};return}
+        val draft=ProductDraft(state.name.trim(),state.description.trim().ifBlank{null},state.selectedCategoryId,state.price.trim(),state.discountPercent.trim().ifBlank{null},state.stock.trim().ifBlank{null},state.sku.trim().ifBlank{null},state.unit.trim().ifBlank{null})
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true) }
-            val result = if (mode == ProductFormUiState.Mode.CREATE) {
-                createProduct(draft)
-            } else {
-                updateProduct(requireNotNull(productId), draft)
-            }
-            when (result) {
+            _uiState.update{it.copy(isSaving=true)}
+            val result=if(mode==ProductFormUiState.Mode.CREATE) createProduct(draft) else updateProduct(requireNotNull(productId),draft)
+            when(result){
                 is AppResult.Success -> {
-                    _uiState.update { it.copy(isSaving = false, isDirty = false) }
-                    _events.tryEmit(ProductEvent.SavedSuccessfully)
+                    val id=result.data.productId
+                    val imageFailure=uploadAndDeleteImages(id,state)
+                    _uiState.update{it.copy(isSaving=false,isDirty=false)}
+                    if(imageFailure==null) _events.tryEmit(ProductEvent.SavedSuccessfully)
+                    else _events.tryEmit(ProductEvent.Message(imageFailure))
                 }
-
                 is AppResult.Failure -> {
-                    _uiState.update { it.copy(isSaving = false) }
+                    _uiState.update{it.copy(isSaving=false)}
                     when {
-                        result.error.type == FailureType.UNAUTHORIZED ->
-                            _events.tryEmit(ProductEvent.SessionExpired)
-
-                        result.error.type == FailureType.CONTRACT_MISSING ->
-                            _uiState.update {
-                                it.copy(content = ProductFormUiState.Content.Unavailable(result.error.message))
-                            }
-
-                        else -> {
-                            _events.tryEmit(ProductEvent.Message(result.error.message))
-                        }
+                        result.error.type==FailureType.UNAUTHORIZED -> _events.tryEmit(ProductEvent.SessionExpired)
+                        result.error.type==FailureType.CONTRACT_MISSING -> _uiState.update{it.copy(content=ProductFormUiState.Content.Unavailable(result.error.message))}
+                        else -> _events.tryEmit(ProductEvent.Message(result.error.message))
                     }
                 }
             }
         }
     }
 
-    private fun validate(state: ProductFormUiState): ProductFormUiState.FieldErrors {
-        val nameError = if (state.name.isBlank()) "Product name is required." else null
-        val categoryError = if (state.selectedCategoryId.isNullOrBlank()) "Category is required." else null
-
-        val priceError = when {
-            state.price.isBlank() -> "Price is required."
-            state.price.trim().toBigDecimalOrNull() == null -> "Enter a valid price."
-            state.price.trim().toBigDecimalOrNull()!! < BigDecimal.ZERO -> "Price cannot be negative."
-            else -> null
+    private suspend fun uploadAndDeleteImages(id:String,state:ProductFormUiState):String? {
+        for(imageId in state.removedImageIds){
+            when(val r=deleteProductImage(id,imageId)){is AppResult.Failure->return "Product saved, but an existing image could not be removed: ${r.error.message}";is AppResult.Success->Unit}
         }
-
-        val discountError = if (state.discountPercent.isNotBlank()) {
-            val parsed = state.discountPercent.trim().toBigDecimalOrNull()
-            when {
-                parsed == null -> "Enter a valid discount percentage."
-                parsed < BigDecimal.ZERO || parsed > BigDecimal(100) -> "Discount must be between 0 and 100."
-                else -> null
-            }
-        } else null
-
-        val stockError = if (state.stock.isNotBlank()) {
-            val parsed = state.stock.trim().toIntOrNull()
-            when {
-                parsed == null -> "Enter a valid whole number for stock."
-                parsed < 0 -> "Stock cannot be negative."
-                else -> null
-            }
-        } else null
-
-        return ProductFormUiState.FieldErrors(
-            name = nameError,
-            category = categoryError,
-            price = priceError,
-            discount = discountError,
-            stock = stockError
-        )
+        state.selectedImages.forEachIndexed { index,image ->
+            val body=image.bytes.toRequestBody(image.contentType.toMediaType())
+            val part=MultipartBody.Part.createFormData("file",image.fileName,body)
+            when(val r=uploadProductImage(id,part,state.existingImages.size-state.removedImageIds.size+index)){is AppResult.Failure->return "Product saved, but image upload failed: ${r.error.message}";is AppResult.Success->Unit}
+        }
+        return null
     }
 
-    private fun loadCategoryOptions() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoadingCategories = true) }
-            when (val result = getCategoryOptions()) {
-                is AppResult.Success -> _uiState.update {
-                    it.copy(
-                        isLoadingCategories = false,
-                        categoryOptions = result.data,
-                        categoryOptionsUnavailableMessage = null
-                    )
-                }
+    private fun validate(state:ProductFormUiState):ProductFormUiState.FieldErrors {
+        val nameError=if(state.name.isBlank())"Product name is required." else null
+        val categoryError=if(state.selectedCategoryId.isNullOrBlank())"Category is required." else null
+        val priceError=when{state.price.isBlank()->"Price is required.";state.price.trim().toBigDecimalOrNull()==null->"Enter a valid price.";state.price.trim().toBigDecimalOrNull()!!<BigDecimal.ZERO->"Price cannot be negative.";else->null}
+        val discountError=if(state.discountPercent.isNotBlank()){val p=state.discountPercent.trim().toBigDecimalOrNull();when{p==null->"Enter a valid discount percentage.";p<BigDecimal.ZERO||p>BigDecimal(100)->"Discount must be between 0 and 100.";else->null}}else null
+        val stockError=if(state.stock.isNotBlank()){val p=state.stock.trim().toIntOrNull();when{p==null->"Enter a valid whole number for stock.";p<0->"Stock cannot be negative.";else->null}}else null
+        return ProductFormUiState.FieldErrors(nameError,categoryError,priceError,discountError,stockError)
+    }
 
-                is AppResult.Failure -> _uiState.update {
-                    it.copy(
-                        isLoadingCategories = false,
-                        categoryOptions = emptyList(),
-                        categoryOptionsUnavailableMessage = result.error.message
-                    )
-                }
-            }
+    private fun loadCategoryOptions(){
+        viewModelScope.launch{
+            _uiState.update{it.copy(isLoadingCategories=true)}
+            when(val r=getCategoryOptions()){is AppResult.Success->_uiState.update{it.copy(isLoadingCategories=false,categoryOptions=r.data,categoryOptionsUnavailableMessage=null)};is AppResult.Failure->_uiState.update{it.copy(isLoadingCategories=false,categoryOptions=emptyList(),categoryOptionsUnavailableMessage=r.error.message)}}
         }
     }
 
-    private fun loadProductForEdit() {
-        val id = productId ?: return
-        val useCase = getProductDetails ?: return
-        if (loadJob?.isActive == true) return
-        _uiState.update { it.copy(content = ProductFormUiState.Content.Loading, isLoadingDetails = true) }
-        loadJob = viewModelScope.launch {
-            when (val result = useCase(id)) {
-                is AppResult.Success -> {
-                    val product = result.data
-                    _uiState.update {
-                        it.copy(
-                            isLoadingDetails = false,
-                            content = ProductFormUiState.Content.Editing,
-                            name = product.name,
-                            description = product.description.orEmpty(),
-                            selectedCategoryId = product.categoryId,
-                            price = product.price?.toPlainString().orEmpty(),
-                            discountPercent = product.discountPercent?.toPlainString().orEmpty(),
-                            stock = product.stock?.toString().orEmpty(),
-                            sku = product.sku.orEmpty(),
-                            unit = product.unit.orEmpty(),
-                            isDirty = false
-                        )
-                    }
-                }
-
-                is AppResult.Failure -> {
-                    if (result.error.type == FailureType.UNAUTHORIZED) {
-                        _events.tryEmit(ProductEvent.SessionExpired)
-                    }
-                    val content = if (result.error.type == FailureType.CONTRACT_MISSING) {
-                        ProductFormUiState.Content.Unavailable(result.error.message)
-                    } else {
-                        ProductFormUiState.Content.Error(
-                            result.error.message.ifBlank { "Unable to load product. Please try again." }
-                        )
-                    }
-                    _uiState.update { it.copy(isLoadingDetails = false, content = content) }
-                }
+    private fun loadProductForEdit(){
+        val id=productId?:return;val useCase=getProductDetails?:return;if(loadJob?.isActive==true)return
+        _uiState.update{it.copy(content=ProductFormUiState.Content.Loading,isLoadingDetails=true)}
+        loadJob=viewModelScope.launch{
+            when(val r=useCase(id)){
+                is AppResult.Success->{val p=r.data;_uiState.update{it.copy(isLoadingDetails=false,content=ProductFormUiState.Content.Editing,name=p.name,description=p.description.orEmpty(),selectedCategoryId=p.categoryId,price=p.price?.toPlainString().orEmpty(),discountPercent=p.discountPercent?.toPlainString().orEmpty(),stock=p.stock?.toString().orEmpty(),sku=p.sku.orEmpty(),unit=p.unit.orEmpty(),existingImages=p.images,isDirty=false)}}
+                is AppResult.Failure->{if(r.error.type==FailureType.UNAUTHORIZED)_events.tryEmit(ProductEvent.SessionExpired);val c=if(r.error.type==FailureType.CONTRACT_MISSING)ProductFormUiState.Content.Unavailable(r.error.message) else ProductFormUiState.Content.Error(r.error.message.ifBlank{"Unable to load product. Please try again."});_uiState.update{it.copy(isLoadingDetails=false,content=c)}}
             }
         }
     }
