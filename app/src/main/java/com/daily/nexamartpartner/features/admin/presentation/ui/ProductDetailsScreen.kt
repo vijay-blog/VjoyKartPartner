@@ -1,7 +1,10 @@
 package com.daily.nexamartpartner.features.admin.presentation.ui
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -11,6 +14,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.daily.nexamartpartner.BuildConfig
 import com.daily.nexamartpartner.R
 import com.daily.nexamartpartner.core.format.ValueFormatter
 import com.daily.nexamartpartner.core.widgets.UiFeedback
@@ -25,7 +29,11 @@ import com.daily.nexamartpartner.features.admin.presentation.viewmodel.ProductEv
 import com.daily.nexamartpartner.features.auth.presentation.viewmodel.AuthCoordinatorViewModel
 import com.daily.nexamartpartner.features.auth.presentation.viewmodel.AuthCoordinatorViewModelFactory
 import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
+import java.net.URL
 
 class ProductDetailsScreen : Fragment(R.layout.fragment_admin_product_details) {
     private var _binding: FragmentAdminProductDetailsBinding? = null
@@ -172,8 +180,85 @@ class ProductDetailsScreen : Fragment(R.layout.fragment_admin_product_details) {
             product.updatedAt ?: unavailable
         )
 
+        renderProductImages(product)
         renderActions(product, actionInProgress)
     }
+
+
+    private fun renderProductImages(product: ProductDetails) {
+        val container = binding.productDetailsImagesContainer
+        container.removeAllViews()
+        val urls = product.images
+            .sortedBy { it.sortOrder }
+            .map { it.url.trim() }
+            .filter { it.isNotEmpty() }
+            .toMutableList()
+
+        if (urls.isEmpty() && !product.imageUrl.isNullOrBlank()) {
+            urls += product.imageUrl!!.trim()
+        }
+
+        if (urls.isEmpty()) {
+            container.addView(ImageView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(dp(96), dp(96))
+                setBackgroundColor(0xFF3F4655.toInt())
+                setPadding(dp(18), dp(18), dp(18), dp(18))
+                setImageResource(android.R.drawable.ic_menu_gallery)
+                imageTintList = android.content.res.ColorStateList.valueOf(0xFFB8BEC9.toInt())
+                contentDescription = getString(R.string.cd_product_image_unavailable)
+            })
+            return
+        }
+
+        urls.take(3).forEachIndexed { index, rawUrl ->
+            val imageView = ImageView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(dp(140), dp(140)).apply {
+                    if (index > 0) leftMargin = dp(12)
+                }
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                setBackgroundColor(0xFF20242D.toInt())
+                contentDescription = "Product image ${index + 1}"
+            }
+            container.addView(imageView)
+            val resolvedUrl = resolveImageUrl(rawUrl)
+            viewLifecycleOwner.lifecycleScope.launch {
+                val bitmap = withContext(Dispatchers.IO) { loadBitmap(resolvedUrl) }
+                if (bitmap != null && view != null) imageView.setImageBitmap(bitmap)
+                else {
+                    imageView.setImageResource(android.R.drawable.ic_menu_gallery)
+                    imageView.imageTintList = android.content.res.ColorStateList.valueOf(0xFFB8BEC9.toInt())
+                }
+            }
+        }
+    }
+
+    private fun resolveImageUrl(raw: String): String {
+        if (raw.startsWith("http://") || raw.startsWith("https://")) return raw
+        val base = BuildConfig.BASE_URL.substringBefore("/api/v1/").removeSuffix("/")
+        return if (raw.startsWith("/")) "$base$raw" else "$base/${raw}"
+    }
+
+    private fun loadBitmap(url: String): android.graphics.Bitmap? {
+        return try {
+            val connection = (URL(url).openConnection() as HttpURLConnection).apply {
+                connectTimeout = 10_000
+                readTimeout = 15_000
+                requestMethod = "GET"
+                useCaches = true
+                doInput = true
+            }
+            connection.connect()
+            if (connection.responseCode !in 200..299) {
+                connection.disconnect()
+                return null
+            }
+            connection.inputStream.use { BitmapFactory.decodeStream(it) }.also { connection.disconnect() }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     private fun formatPrice(
         amount: java.math.BigDecimal?,
