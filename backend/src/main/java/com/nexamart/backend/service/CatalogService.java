@@ -166,8 +166,10 @@ public class CatalogService {
         Product product = products.findById(productId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Product not found."));
         if (data == null || data.length == 0) throw new ApiException(HttpStatus.BAD_REQUEST, "Image is empty.");
         if (data.length > 5 * 1024 * 1024) throw new ApiException(HttpStatus.PAYLOAD_TOO_LARGE, "Each image must be 5 MB or smaller.");
-        if (contentType == null || !Set.of("image/jpeg", "image/png", "image/webp").contains(contentType.toLowerCase(Locale.ROOT)))
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Only JPG, PNG and WEBP images are supported.");
+        String normalizedContentType = contentType == null ? "" : contentType.toLowerCase(Locale.ROOT);
+        if (!Set.of("image/jpeg", "image/png", "image/webp").contains(normalizedContentType) ||
+            !hasValidImageSignature(data, normalizedContentType))
+            throw new ApiException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Only valid JPG, PNG and WEBP images are supported.");
         List<ProductImage> existing = productImages.findByProductIdOrderBySortOrderAscIdAsc(productId);
         if (existing.size() >= 3) throw new ApiException(HttpStatus.CONFLICT, "A product can have a maximum of 3 images.");
         int requestedOrder = requestedSortOrder == null ? existing.size() : Math.max(0, Math.min(2, requestedSortOrder));
@@ -179,6 +181,20 @@ public class CatalogService {
         image.setFileName(fileName == null ? "product-image" : fileName.replaceAll("[^a-zA-Z0-9._-]", "_"));
         image.setSortOrder(sortOrder);
         return productImages.save(image);
+    }
+
+    private boolean hasValidImageSignature(byte[] data, String contentType) {
+        return switch (contentType) {
+            case "image/jpeg" -> data.length >= 3 &&
+                (data[0] & 0xff) == 0xff && (data[1] & 0xff) == 0xd8 && (data[2] & 0xff) == 0xff;
+            case "image/png" -> data.length >= 8 &&
+                (data[0] & 0xff) == 0x89 && data[1] == 0x50 && data[2] == 0x4e && data[3] == 0x47 &&
+                data[4] == 0x0d && data[5] == 0x0a && data[6] == 0x1a && data[7] == 0x0a;
+            case "image/webp" -> data.length >= 12 &&
+                data[0] == 0x52 && data[1] == 0x49 && data[2] == 0x46 && data[3] == 0x46 &&
+                data[8] == 0x57 && data[9] == 0x45 && data[10] == 0x42 && data[11] == 0x50;
+            default -> false;
+        };
     }
 
     @Transactional

@@ -369,9 +369,22 @@ class ProductFormViewModel(
         state.selectedImages.forEachIndexed { index,image ->
             val body=image.bytes.toRequestBody(image.contentType.toMediaType())
             val part=MultipartBody.Part.createFormData("file",image.fileName,body)
-            when(val r=uploadProductImage(id,part,state.existingImages.size-state.removedImageIds.size+index)){is AppResult.Failure->return "Product saved, but image upload failed: ${r.error.message}";is AppResult.Success->Unit}
+            when(val r=uploadProductImage(id,part,state.existingImages.size-state.removedImageIds.size+index)){is AppResult.Failure->return "Product saved, but image upload failed: ${imageUploadError(r.error)}";is AppResult.Success->Unit}
         }
         return null
+    }
+
+    private fun imageUploadError(error: com.daily.nexamartpartner.core.result.AppFailure): String {
+        return when (error.code) {
+            401 -> "Session expired. Please login again."
+            403 -> "You do not have permission to upload product images."
+            404 -> "Image upload API was not found. Backend needs deployment."
+            413 -> "Image is too large. Maximum 5 MB."
+            415 -> "Unsupported image format."
+            in 500..599 -> "Server error while saving image. HTTP ${error.code}: ${error.message}"
+            null -> error.message
+            else -> "HTTP ${error.code}: ${error.message}"
+        }
     }
 
     private fun validate(state:ProductFormUiState):ProductFormUiState.FieldErrors {

@@ -334,6 +334,7 @@ class ProductFormScreen : Fragment(R.layout.fragment_admin_product_form) {
             val opts=BitmapFactory.Options().apply{inSampleSize=sample}
             val bitmap=BitmapFactory.decodeByteArray(original,0,original.size,opts) ?: return null
             val out=java.io.ByteArrayOutputStream();bitmap.compress(Bitmap.CompressFormat.JPEG,82,out);bitmap.recycle()
+            if(out.size()>5*1024*1024) return null
             val name=queryDisplayName(uri) ?: "product_${System.currentTimeMillis()}.jpg"
             ProductImageUpload(out.toByteArray(),"image/jpeg",name.substringBeforeLast('.',name)+".jpg")
         }catch(_:Exception){null}

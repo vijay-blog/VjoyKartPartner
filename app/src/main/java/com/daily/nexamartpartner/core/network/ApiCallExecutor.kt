@@ -38,7 +38,7 @@ class ApiCallExecutor {
                 val code = response.code()
                 val serverMessage = ApiErrorParser.parse(response.errorBody()?.string())
                 val type = when (code) {
-                    400, 422 -> FailureType.VALIDATION
+                    400, 413, 415, 422 -> FailureType.VALIDATION
                     401 -> FailureType.UNAUTHORIZED
                     403 -> FailureType.FORBIDDEN
                     404 -> FailureType.NOT_FOUND

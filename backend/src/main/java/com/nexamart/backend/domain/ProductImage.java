@@ -2,6 +2,8 @@ package com.nexamart.backend.domain;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "product_images", indexes = {
@@ -16,7 +18,7 @@ public class ProductImage {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Lob
+    @JdbcTypeCode(SqlTypes.LONGVARBINARY)
     @Column(name = "image_data", nullable = false, columnDefinition = "LONGBLOB")
     private byte[] imageData;
 

@@ -8,12 +8,19 @@ object ApiErrorParser {
         for (key in candidates) {
             val regex = Regex("\\\"$key\\\"\\s*:\\s*\\\"((?:\\\\.|[^\\\"])*)\\\"", RegexOption.IGNORE_CASE)
             val match = regex.find(body) ?: continue
-            return match.groupValues[1]
+            val message = match.groupValues[1]
                 .replace("\\\"", "\"")
                 .replace("\\\\", "\\")
                 .trim()
                 .takeIf { it.isNotEmpty() }
-                ?.take(240)
+                ?.take(200)
+                ?: continue
+            val errorId = Regex("\\\"errorId\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"", RegexOption.IGNORE_CASE)
+                .find(body)
+                ?.groupValues
+                ?.get(1)
+                ?.take(60)
+            return if (errorId == null) message else "$message (Error ID: $errorId)"
         }
         return null
     }

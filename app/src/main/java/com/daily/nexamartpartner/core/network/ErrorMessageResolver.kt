@@ -8,6 +8,8 @@ object ErrorMessageResolver {
         404 -> "The requested information was not found."
         408 -> "The request timed out. Please try again."
         409 -> "This data changed on the server. Refresh and try again."
+        413 -> "Image is too large. Maximum 5 MB."
+        415 -> "Unsupported image format."
         422 -> "Some details are invalid. Please correct them and continue."
         429 -> "Too many requests. Please wait a moment and try again."
         500 -> "Something went wrong on the server. Please try again."
