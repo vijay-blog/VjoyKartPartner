@@ -17,7 +17,7 @@ public class ProductImage {
     private Product product;
 
     @Lob
-    @Column(name = "image_data", nullable = false, columnDefinition = "MEDIUMBLOB")
+    @Column(name = "image_data", nullable = false, columnDefinition = "LONGBLOB")
     private byte[] imageData;
 
     @Column(name = "content_type", nullable = false, length = 100)
