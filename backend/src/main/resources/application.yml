@@ -21,6 +21,10 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+    out-of-order: true
+    ignore-migration-patterns:
+      - "*:missing"
+      - "*:future"
 
   jackson:
     serialization:

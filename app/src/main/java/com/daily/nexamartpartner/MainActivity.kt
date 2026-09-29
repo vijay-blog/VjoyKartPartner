@@ -15,6 +15,8 @@ import com.daily.nexamartpartner.databinding.ActivityMainBinding
 import com.daily.nexamartpartner.di.appContainer
 import com.daily.nexamartpartner.features.auth.presentation.viewmodel.AuthCoordinatorViewModel
 import com.daily.nexamartpartner.features.auth.presentation.viewmodel.AuthCoordinatorViewModelFactory
+import com.daily.nexamartpartner.features.auth.domain.model.AuthState
+import com.daily.nexamartpartner.features.delivery.location.DeliveryLocationForegroundService
 import com.daily.nexamartpartner.routing.AuthDestinationResolver
 import com.daily.nexamartpartner.routing.NavigationGuard
 import kotlinx.coroutines.launch
@@ -65,6 +67,12 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 authCoordinatorViewModel.authState.collect { authState ->
+                    when (authState) {
+                        is AuthState.Unauthenticated,
+                        is AuthState.AuthenticationError,
+                        is AuthState.UnsupportedRole -> DeliveryLocationForegroundService.stop(applicationContext)
+                        else -> Unit
+                    }
                     val targetRootId = AuthDestinationResolver.resolve(authState)
                     if (!isAtOrWithinDestination(navController, targetRootId)) {
                         navigateWithRootGraphHop(navController, targetRootId)
