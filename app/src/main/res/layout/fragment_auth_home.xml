@@ -1,98 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:padding="24dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:text="@string/brand_title"
-            android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:text="@string/auth_home_subtitle"
-            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            app:cardCornerRadius="20dp"
-            app:strokeWidth="1dp">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/admin_access_title"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="@string/admin_access_subtitle"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/adminLoginButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:minHeight="52dp"
-                    android:text="@string/admin_login_button" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="20dp"
-            app:strokeWidth="1dp">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/delivery_access_title"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="@string/delivery_access_subtitle"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/deliveryLoginButton"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:minHeight="52dp"
-                    android:text="@string/delivery_login_button" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:background="@color/nxm_background">
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="34dp" android:text="VJoyKart" android:textSize="38sp" android:textStyle="bold" android:textColor="@color/nxm_primary" />
+  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="PARTNER" android:textSize="13sp" android:letterSpacing="0.25" android:textStyle="bold" android:textColor="@color/nxm_on_surface_variant" />
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Earn on your own schedule." android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall" android:textStyle="bold" />
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Deliver fashion orders. Stay online when you want. Manage everything from one premium workspace." android:textAppearance="@style/TextAppearance.Material3.BodyLarge" android:textColor="@color/nxm_on_surface_variant" />
+  <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" app:cardCornerRadius="28dp" app:cardElevation="4dp" app:strokeColor="@color/nxm_primary" app:strokeWidth="1dp">
+   <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="22dp">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DELIVERY PARTNER" android:textSize="12sp" android:textStyle="bold" android:textColor="@color/nxm_primary" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Login with your mobile + OTP" android:textAppearance="@style/TextAppearance.Material3.TitleLarge" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="Already registered? Get a secure OTP and go straight to your dashboard." android:textAppearance="@style/TextAppearance.Material3.BodyMedium" android:textColor="@color/nxm_on_surface_variant" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/deliveryLoginButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:minHeight="54dp" android:text="Delivery Partner Login" />
+   </LinearLayout>
+  </com.google.android.material.card.MaterialCardView>
+  <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" app:cardCornerRadius="24dp" app:cardElevation="1dp" app:strokeColor="@color/nxm_outline" app:strokeWidth="1dp">
+   <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ADMIN" android:textSize="12sp" android:textStyle="bold" android:textColor="@color/nxm_secondary" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="Manage VJoyKart operations" android:textAppearance="@style/TextAppearance.Material3.TitleLarge" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="Products • Orders • Customers • Marketplace operations" android:textAppearance="@style/TextAppearance.Material3.BodyMedium" android:textColor="@color/nxm_on_surface_variant" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/adminLoginButton" style="@style/NexaMartOutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Admin Login" />
+   </LinearLayout>
+  </com.google.android.material.card.MaterialCardView>
+ </LinearLayout>
 </androidx.core.widget.NestedScrollView>

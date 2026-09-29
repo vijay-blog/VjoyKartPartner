@@ -22,6 +22,15 @@ class AuthRepositoryImpl(
         }
     }
 
+    override suspend fun sendPartnerOtp(phone: String): AppResult<com.daily.nexamartpartner.features.auth.data.model.OtpSendResponseDto> = remoteDataSource.sendPartnerOtp(phone)
+
+    override suspend fun verifyPartnerOtp(phone: String, otp: String): AppResult<UserSession> {
+        return when (val result = remoteDataSource.verifyPartnerOtp(phone, otp)) {
+            is AppResult.Success -> mapAndPersistSession(result.data)
+            is AppResult.Failure -> result
+        }
+    }
+
     override suspend fun restoreSession(): AppResult<UserSession?> {
         return try {
             AppResult.Success(sessionManager.initialize())

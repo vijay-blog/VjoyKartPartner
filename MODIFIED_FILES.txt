@@ -1,10 +1,4 @@
-app/src/main/java/com/daily/nexamartpartner/features/auth/data/source/RegistrationApi.kt
-app/src/main/java/com/daily/nexamartpartner/features/auth/data/source/RegistrationRemoteDataSourceImpl.kt
-app/src/main/java/com/daily/nexamartpartner/features/auth/data/model/AuthDtos.kt
-backend/src/main/java/com/nexamart/backend/api/ApiModels.java
-backend/src/main/java/com/nexamart/backend/api/AuthController.java
-backend/src/main/java/com/nexamart/backend/service/AuthService.java
-backend/src/main/java/com/nexamart/backend/exception/GlobalExceptionHandler.java
-backend/src/test/java/com/nexamart/backend/service/AuthServiceTest.java
-backend/src/test/java/com/nexamart/backend/api/AuthControllerSecurityTest.java
-backend/REGISTRATION_LOGIN_FIX.md
+VJoyKart Partner — modified files only
+
+OTP login, premium auth/dashboard UI, delivery-partner onboarding, Aadhaar/bike/DL/DOB profile fields.
+

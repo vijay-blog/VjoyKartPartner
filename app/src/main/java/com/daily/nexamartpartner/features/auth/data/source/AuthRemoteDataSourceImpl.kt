@@ -27,6 +27,12 @@ class AuthRemoteDataSourceImpl(
         return mapLoginFailure(response)
     }
 
+    override suspend fun sendPartnerOtp(phone: String): AppResult<com.daily.nexamartpartner.features.auth.data.model.OtpSendResponseDto> =
+        apiCallExecutor.execute { api.sendPartnerOtp(mapOf("phone" to phone.trim())) }
+
+    override suspend fun verifyPartnerOtp(phone: String, otp: String): AppResult<LoginResponseDto> =
+        apiCallExecutor.execute { api.verifyPartnerOtp(mapOf("phone" to phone.trim(), "otp" to otp.trim())) }
+
     override suspend fun refresh(refreshToken: String): AppResult<LoginResponseDto> {
         val payload = requestContract.buildRefreshBody(refreshToken)
             ?: return AppResult.Failure(

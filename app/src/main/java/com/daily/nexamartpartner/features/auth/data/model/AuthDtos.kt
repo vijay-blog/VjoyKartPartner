@@ -19,3 +19,12 @@ data class LoginResponseDto(
 data class RegistrationResponseDto(
     @field:Json(name = "message") val message: String?
 )
+
+
+data class OtpSendResponseDto(
+    val success: Boolean = false,
+    val message: String? = null,
+    val expiresInSeconds: Int = 300,
+    val deliveryChannel: String? = null,
+    val devOtp: String? = null
+)

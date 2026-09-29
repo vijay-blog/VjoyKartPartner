@@ -26,7 +26,7 @@ public class SecurityConfig {
     http.csrf(c->c.disable()).cors(c->{}).sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .authorizeHttpRequests(a->a
         .requestMatchers(HttpMethod.GET,"/api/v1/health","/api/v1/catalog/**").permitAll()
-        .requestMatchers(HttpMethod.POST,"/api/v1/auth/login","/api/v1/auth/register","/api/v1/auth/admin/login","/api/v1/auth/refresh").permitAll()
+        .requestMatchers(HttpMethod.POST,"/api/v1/auth/login","/api/v1/auth/register","/api/v1/auth/admin/login","/api/v1/auth/refresh","/api/v1/auth/partner/send-otp","/api/v1/auth/partner/verify-otp","/api/v1/auth/partner/register").permitAll()
         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
         .requestMatchers("/api/v1/delivery/**").hasRole("DELIVERY_PARTNER")
         .anyRequest().authenticated())

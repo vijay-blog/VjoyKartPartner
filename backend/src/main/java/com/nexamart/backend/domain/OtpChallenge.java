@@ -1,0 +1,5 @@
+package com.nexamart.backend.domain;
+import jakarta.persistence.*; import java.time.Instant;
+@Entity @Table(name="otp_challenges", indexes={@Index(name="idx_otp_phone_created", columnList="phone,created_at")})
+public class OtpChallenge { @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id; @Column(nullable=false,length=20) String phone; @Column(name="otp_hash",nullable=false,length=128) String otpHash; @Column(name="expires_at",nullable=false) Instant expiresAt; @Column(nullable=false) int attempts=0; @Column(nullable=false) boolean verified=false; @Column(name="created_at",nullable=false) Instant createdAt=Instant.now();
+ public Long getId(){return id;} public String getPhone(){return phone;} public void setPhone(String v){phone=v;} public String getOtpHash(){return otpHash;} public void setOtpHash(String v){otpHash=v;} public Instant getExpiresAt(){return expiresAt;} public void setExpiresAt(Instant v){expiresAt=v;} public int getAttempts(){return attempts;} public void setAttempts(int v){attempts=v;} public boolean isVerified(){return verified;} public void setVerified(boolean v){verified=v;} public Instant getCreatedAt(){return createdAt;} }

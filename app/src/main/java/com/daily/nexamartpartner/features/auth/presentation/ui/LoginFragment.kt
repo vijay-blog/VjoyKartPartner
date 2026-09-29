@@ -18,69 +18,30 @@ import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
     private var _binding: FragmentLoginBinding? = null
-    private val binding: FragmentLoginBinding
-        get() = requireNotNull(_binding)
-
+    private val binding get() = requireNotNull(_binding)
     private val loginViewModel: LoginViewModel by viewModels {
-        LoginViewModelFactory(
-            loginUseCase = requireContext().appContainer.loginUseCase,
-            authStateStore = requireContext().appContainer.authStateStore
-        )
+        LoginViewModelFactory(requireContext().appContainer.sendPartnerOtpUseCase, requireContext().appContainer.verifyPartnerOtpUseCase, requireContext().appContainer.authStateStore)
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentLoginBinding.bind(view)
-        bindListeners()
-        ((arguments?.getString("prefillIdentifier") ?: arguments?.getString("prefillEmail"))?.takeIf { it.isNotBlank() })?.let {
-            binding.identifierInputEditText.setText(it)
-        }
+        super.onViewCreated(view, savedInstanceState); _binding = FragmentLoginBinding.bind(view)
+        binding.identifierInputLayout.hint = "Mobile number"
+        binding.identifierInputEditText.inputType = android.text.InputType.TYPE_CLASS_PHONE
+        arguments?.getString("prefillIdentifier")?.takeIf { it.isNotBlank() }?.let { binding.identifierInputEditText.setText(it) }
+        binding.passwordInputLayout.visibility = View.GONE
+        binding.loginButton.text = "Send OTP"
+        binding.createAccountButton.text = "New delivery partner? Create account"
+        binding.identifierInputEditText.doAfterTextChanged { loginViewModel.onPhoneChanged(it?.toString().orEmpty()) }
+        binding.passwordInputEditText.doAfterTextChanged { loginViewModel.onOtpChanged(it?.toString().orEmpty()) }
+        binding.loginButton.setOnClickListener { if (loginViewModel.uiState.value.otpSent) loginViewModel.verifyOtp() else loginViewModel.sendOtp() }
+        binding.createAccountButton.setOnClickListener { findNavController().navigate(R.id.createDeliveryAccountFragment) }
         collectState()
     }
-
-    private fun bindListeners() {
-        binding.identifierInputEditText.doAfterTextChanged {
-            loginViewModel.onIdentifierChanged(it?.toString().orEmpty())
-        }
-        binding.passwordInputEditText.doAfterTextChanged {
-            loginViewModel.onPasswordChanged(it?.toString().orEmpty())
-        }
-        binding.loginButton.setOnClickListener {
-            submitLogin()
-        }
-        binding.createAccountButton.setOnClickListener {
-            findNavController().navigate(R.id.createDeliveryAccountFragment, null, null)
-        }
-    }
-
-    private fun submitLogin() {
-        loginViewModel.submitLogin()
-    }
-
-    private fun collectState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                loginViewModel.uiState.collect { state ->
-                    binding.identifierInputLayout.error = state.identifierError
-                    binding.passwordInputLayout.error = state.passwordError
-
-                    binding.loginButton.isEnabled = !state.isSubmitting
-                    binding.loginButton.text =
-                        if (state.isSubmitting) "Please wait..." else getString(R.string.login_button)
-
-                    if (state.formError.isNullOrBlank()) {
-                        binding.loginErrorText.visibility = View.GONE
-                    } else {
-                        binding.loginErrorText.visibility = View.VISIBLE
-                        binding.loginErrorText.text = state.formError
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onDestroyView() {
-        _binding = null
-        super.onDestroyView()
-    }
+    private fun collectState() { viewLifecycleOwner.lifecycleScope.launch { viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) { loginViewModel.uiState.collect { s ->
+        binding.identifierInputLayout.error=s.phoneError; binding.passwordInputLayout.error=s.otpError
+        binding.passwordInputLayout.hint="6-digit OTP"; binding.passwordInputLayout.visibility=if(s.otpSent) View.VISIBLE else View.GONE; binding.passwordInputEditText.inputType=android.text.InputType.TYPE_CLASS_NUMBER; binding.passwordInputEditText.visibility=View.VISIBLE
+        binding.loginButton.isEnabled=!s.isSendingOtp&&!s.isVerifying; binding.loginButton.text=when{ s.isSendingOtp->"Sending OTP…";s.isVerifying->"Verifying…";s.otpSent->"Verify & Login";else->"Send OTP" }
+        binding.loginErrorText.visibility=if(s.formError.isNullOrBlank()) View.GONE else View.VISIBLE; binding.loginErrorText.text=s.formError
+        if(s.devOtp!=null){binding.loginErrorText.visibility=View.VISIBLE;binding.loginErrorText.text="DEV OTP: ${s.devOtp}"}
+    } } } }
+    override fun onDestroyView(){_binding=null;super.onDestroyView()}
 }

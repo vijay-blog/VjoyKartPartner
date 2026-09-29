@@ -18,6 +18,11 @@ public class DeliveryPartnerProfile {
   private String vehicleType;
   private String vehicleNumber;
   private String licenseReference;
+  private String dateOfBirth;
+  private String drivingLicenseNumber;
+  private String aadhaarNumber;
+  @Lob @Column(name="aadhaar_photo_data", columnDefinition="LONGBLOB") private byte[] aadhaarPhotoData;
+  private String aadhaarPhotoContentType;
   private boolean available=false;
   private Double latitude;
   private Double longitude;

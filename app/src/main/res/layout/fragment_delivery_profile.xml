@@ -21,6 +21,9 @@
      <TextView android:id="@+id/vehicleText" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"/>
      <TextView android:id="@+id/vehicleNumberText" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
      <TextView android:id="@+id/licenseText" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
+     <TextView android:id="@+id/dobText" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
+     <TextView android:id="@+id/drivingLicenseNumberText" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
+     <TextView android:id="@+id/aadhaarText" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
     </LinearLayout>
    </com.google.android.material.card.MaterialCardView>
    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp">

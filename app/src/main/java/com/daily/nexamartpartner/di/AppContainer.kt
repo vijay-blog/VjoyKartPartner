@@ -146,6 +146,7 @@ import com.daily.nexamartpartner.features.auth.data.repository.RegistrationRepos
 import com.daily.nexamartpartner.features.auth.data.source.AuthApi
 import com.daily.nexamartpartner.features.auth.data.source.AuthRemoteDataSource
 import com.daily.nexamartpartner.features.auth.data.source.AuthRemoteDataSourceImpl
+import com.daily.nexamartpartner.features.auth.data.source.DeliveryOnboardingApi
 import com.daily.nexamartpartner.features.auth.data.source.RegistrationApi
 import com.daily.nexamartpartner.features.auth.data.source.RegistrationRemoteDataSource
 import com.daily.nexamartpartner.features.auth.data.source.RegistrationRemoteDataSourceImpl
@@ -172,6 +173,7 @@ class AppContainer(context: Context) {
 
     private val retrofit: Retrofit = ApiClientFactory.create(authHeaderInterceptor, networkConnectivityMonitor)
     private val authApi: AuthApi = retrofit.create(AuthApi::class.java)
+    val deliveryOnboardingApi: DeliveryOnboardingApi = retrofit.create(DeliveryOnboardingApi::class.java)
     private val registrationApi: RegistrationApi = retrofit.create(RegistrationApi::class.java)
     private val adminDashboardApi: AdminDashboardApi = retrofit.create(AdminDashboardApi::class.java)
     private val adminOrdersApi: AdminOrdersApi = retrofit.create(AdminOrdersApi::class.java)
@@ -199,7 +201,7 @@ class AppContainer(context: Context) {
     private val deliveryNotificationsContract: DeliveryNotificationsContract = ActiveDeliveryNotificationsContract()
     private val deliveryPartnerProfileContract: DeliveryPartnerProfileContract = ActiveDeliveryPartnerProfileContract()
     private val deliveryAvailabilityContract: DeliveryAvailabilityContract = ActiveDeliveryAvailabilityContract()
-    private val apiCallExecutor = ApiCallExecutor()
+    val apiCallExecutor = ApiCallExecutor()
 
     private val authRemoteDataSource: AuthRemoteDataSource = AuthRemoteDataSourceImpl(
         api = authApi,
@@ -285,6 +287,8 @@ class AppContainer(context: Context) {
     val restoreSessionUseCase = RestoreSessionUseCase(authRepository)
     val logoutUseCase = LogoutUseCase(authRepository)
     val registerUseCase = RegisterUseCase(registrationRepository)
+    val sendPartnerOtpUseCase = com.daily.nexamartpartner.features.auth.domain.usecase.SendPartnerOtpUseCase(authRepository)
+    val verifyPartnerOtpUseCase = com.daily.nexamartpartner.features.auth.domain.usecase.VerifyPartnerOtpUseCase(authRepository)
 
     fun provideAdminDashboardUseCase(): GetAdminDashboardUseCase {
         return GetAdminDashboardUseCase(adminDashboardRepositoryOverride ?: adminDashboardRepository)

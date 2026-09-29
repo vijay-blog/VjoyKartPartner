@@ -43,6 +43,7 @@ import com.nexamart.backend.api.ApiModels.*;import com.nexamart.backend.config.A
   if(phone.matches("[6-9]\\d{9}")) return phone;
   return phone;
  }
+ public LoginResponse issueDeliveryPartnerSession(UserAccount u){ if(u.getRole()!=Role.DELIVERY_PARTNER) throw new ApiException(HttpStatus.FORBIDDEN,"Delivery partner access required."); return tokens(u); }
  public void ensureAdmin(){
   if(props.getAdminUsername()==null || props.getAdminUsername().isBlank()) throw new IllegalStateException("ADMIN_USERNAME is missing.");
   if(props.getAdminPassword()==null || props.getAdminPassword().isBlank()) throw new IllegalStateException("ADMIN_PASSWORD is missing.");
