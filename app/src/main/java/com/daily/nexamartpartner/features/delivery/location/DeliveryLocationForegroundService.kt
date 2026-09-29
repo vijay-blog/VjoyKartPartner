@@ -137,7 +137,7 @@ class DeliveryLocationForegroundService : Service() {
             ?.toMutableSet()
             ?: mutableSetOf()
 
-        while (isActive && started) {
+        while (currentCoroutineContext().isActive && started) {
             try {
                 when (val result = applicationContext.appContainer.provideGetDeliveryNotificationsUseCase()(
                     DeliveryNotificationQuery(page = 0, pageSize = 20, unreadOnly = true)
