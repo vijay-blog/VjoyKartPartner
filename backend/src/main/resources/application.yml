@@ -46,6 +46,17 @@ nexamart:
   otp-template-name: ${TWOFACTOR_OTP_TEMPLATE:}
   otp-ttl-seconds: ${OTP_TTL_SECONDS:300}
   otp-dev-mode: ${OTP_DEV_MODE:false}
+  
+twofactor:
+  api-key: ${TWOFACTOR_API_KEY:}
+  base-url: ${TWOFACTOR_BASE_URL:https://2factor.in}
+  voice-base-url: ${TWOFACTOR_VOICE_BASE_URL:${TWOFACTOR_BASE_URL:https://2factor.in}}
+  timeout-seconds: ${TWOFACTOR_TIMEOUT_SECONDS:10}
+  sender-id: ${TWOFACTOR_SENDER_ID:}
+  # Retained for compatibility and startup diagnostics.
+  # For current OTP SMS endpoint, sender/template are account-side mapping.
+  otp-template: ${TWOFACTOR_OTP_TEMPLATE:}
+
 
 management:
   endpoints:

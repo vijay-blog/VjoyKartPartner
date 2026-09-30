@@ -118,43 +118,50 @@ public class PartnerOtpService {
   private void sendSms(String phone, String otp) throws Exception {
     String key = props.getOtpApiKey();
     if (key == null || key.isBlank()) {
-      throw new IllegalStateException("TWOFACTOR_API_KEY is empty");
+      throw new IllegalStateException("TWOFACTOR_API_KEY is empty or not loaded by Railway");
     }
 
-    String template = props.getOtpTemplateName();
-    if (template == null || template.isBlank()) {
-      throw new IllegalStateException("TWOFACTOR_OTP_TEMPLATE is empty");
-    }
-
-    // 2Factor's documented custom OTP route uses the API key in the path:
-    // /API/V1/{api_key}/SMS/{phone}/AUTOGEN/{template_name}
-    // or /SMS/{phone}/{otp}/{template_name}. We generate the OTP locally so
-    // verification remains authoritative in our database.
-    String encodedKey = URLEncoder.encode(key, StandardCharsets.UTF_8);
-    String encodedPhone = URLEncoder.encode("+91" + phone, StandardCharsets.UTF_8);
+    // 2Factor's legacy/manual OTP API accepts a 10-digit Indian number.
+    // Do NOT prepend +91 here; the provider's manual OTP endpoint expects
+    // the phone value in the account's configured country format.
+    String encodedKey = URLEncoder.encode(key.trim(), StandardCharsets.UTF_8);
+    String encodedPhone = URLEncoder.encode(phone, StandardCharsets.UTF_8);
     String encodedOtp = URLEncoder.encode(otp, StandardCharsets.UTF_8);
-    String encodedTemplate = URLEncoder.encode(template, StandardCharsets.UTF_8);
+    String template = props.getOtpTemplateName();
 
     String url = "https://2factor.in/API/V1/" + encodedKey + "/SMS/"
-        + encodedPhone + "/" + encodedOtp + "/" + encodedTemplate;
+        + encodedPhone + "/" + encodedOtp;
+
+    // A custom OTP template is optional. If Railway has TWOFACTOR_OTP_TEMPLATE,
+    // use it; otherwise use the standard account OTP template. This prevents a
+    // missing template variable from being reported as "OTP service not configured".
+    if (template != null && !template.isBlank()) {
+      url += "/" + URLEncoder.encode(template.trim(), StandardCharsets.UTF_8);
+    }
 
     HttpRequest request = HttpRequest.newBuilder(URI.create(url))
-        .timeout(Duration.ofSeconds(15))
+        .timeout(Duration.ofSeconds(20))
         .header("Accept", "application/json,text/plain,*/*")
+        .header("User-Agent", "VJoyKart-Partner-Backend/1.0")
         .GET()
         .build();
 
     HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
-    String body = response.body() == null ? "" : response.body();
+    String body = response.body() == null ? "" : response.body().trim();
     String lower = body.toLowerCase(Locale.ROOT);
 
+    System.out.println("2Factor OTP response: HTTP=" + response.statusCode()
+        + ", body=" + sanitizeProviderBody(body));
+
     if (response.statusCode() < 200 || response.statusCode() >= 300) {
-      throw new IllegalStateException("2Factor HTTP " + response.statusCode() + ": " + sanitizeProviderBody(body));
+      throw new IllegalStateException("2Factor HTTP " + response.statusCode()
+          + ": " + sanitizeProviderBody(body));
     }
 
-    // Legacy 2Factor responses normally contain Status=Success / status=success.
-    // Accept both JSON and plain-text response styles used by the service.
-    if (!(lower.contains("success") || lower.contains("sent") || lower.contains("details"))) {
+    // Known legacy responses include: {"Status":"Success","Details":"..."}
+    if (!(lower.contains("\"status\":\"success")
+        || lower.contains("status=success")
+        || lower.contains("success") && lower.contains("details"))) {
       throw new IllegalStateException("2Factor rejected OTP: " + sanitizeProviderBody(body));
     }
   }
