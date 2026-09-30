@@ -3,6 +3,7 @@ package com.daily.nexamartpartner.features.auth
 import com.daily.nexamartpartner.core.result.AppResult
 import com.daily.nexamartpartner.features.auth.data.model.AuthUserDto
 import com.daily.nexamartpartner.features.auth.data.model.LoginResponseDto
+import com.daily.nexamartpartner.features.auth.data.model.OtpSendResponseDto
 import com.daily.nexamartpartner.features.auth.data.repository.AuthRepositoryImpl
 import com.daily.nexamartpartner.features.auth.data.source.AuthRemoteDataSource
 import com.daily.nexamartpartner.features.auth.domain.model.LoginCredentials
@@ -48,6 +49,14 @@ class LogoutFlowTest {
                 )
             )
         }
+
+        override suspend fun sendPartnerOtp(phone: String): AppResult<OtpSendResponseDto> =
+            AppResult.Success(OtpSendResponseDto(success = true))
+
+        override suspend fun verifyPartnerOtp(
+            phone: String,
+            otp: String
+        ): AppResult<LoginResponseDto> = login(LoginCredentials(phone, otp))
 
         override suspend fun refresh(refreshToken: String): AppResult<LoginResponseDto> {
             return login(LoginCredentials("id", "pass"))

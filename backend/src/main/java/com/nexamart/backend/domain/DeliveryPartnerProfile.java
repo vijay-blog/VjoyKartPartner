@@ -40,6 +40,16 @@ public class DeliveryPartnerProfile {
   public void setVehicleNumber(String v){vehicleNumber=v;}
   public String getLicenseReference(){return licenseReference;}
   public void setLicenseReference(String v){licenseReference=v;}
+  public String getDateOfBirth(){return dateOfBirth;}
+  public void setDateOfBirth(String v){dateOfBirth=v;}
+  public String getDrivingLicenseNumber(){return drivingLicenseNumber;}
+  public void setDrivingLicenseNumber(String v){drivingLicenseNumber=v;}
+  public String getAadhaarNumber(){return aadhaarNumber;}
+  public void setAadhaarNumber(String v){aadhaarNumber=v;}
+  public byte[] getAadhaarPhotoData(){return aadhaarPhotoData;}
+  public void setAadhaarPhotoData(byte[] v){aadhaarPhotoData=v;}
+  public String getAadhaarPhotoContentType(){return aadhaarPhotoContentType;}
+  public void setAadhaarPhotoContentType(String v){aadhaarPhotoContentType=v;}
   public boolean isAvailable(){return available;}
   public void setAvailable(boolean v){available=v;updatedAt=Instant.now();}
   public Double getLatitude(){return latitude;}

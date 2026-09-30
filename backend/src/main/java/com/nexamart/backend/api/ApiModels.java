@@ -6,6 +6,9 @@ public final class ApiModels{private ApiModels(){}
  public record RefreshRequest(@NotBlank String refreshToken){}
  public record UserResponse(Long id,String name,String phone,String email,String role){}
  public record LoginResponse(String accessToken,String refreshToken,UserResponse user){} public record RegistrationResponse(String message){}
+ public record OtpRequest(@NotBlank String phone){}
+ public record VerifyOtpRequest(@NotBlank String phone,@NotBlank String otp){}
+ public record OtpSendResponse(boolean success,String message,int expiresInSeconds,String deliveryChannel,String devOtp){}
  public record ActionRequest(@NotBlank String action,String reason){}
  public record OrderStatusRequest(@NotBlank String status){}
  public record CancelRequest(String reason){}

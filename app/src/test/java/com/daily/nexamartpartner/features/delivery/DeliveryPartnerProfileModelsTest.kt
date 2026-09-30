@@ -8,7 +8,25 @@ import org.junit.Test
 
 class DeliveryPartnerProfileModelsTest {
     @Test fun editableFields_areBackendControlled() {
-        val p = DeliveryPartnerProfile(1,"Partner","999",null,null,"VERIFIED","ACTIVE","Bike","TS01","DL01",null,null,setOf("name"))
+        val p = DeliveryPartnerProfile(
+            id = 1,
+            name = "Partner",
+            phone = "999",
+            email = null,
+            profileImageUrl = null,
+            verificationStatus = "VERIFIED",
+            accountStatus = "ACTIVE",
+            vehicleType = "Bike",
+            vehicleNumber = "TS01",
+            licenseReference = "DL01",
+            dateOfBirth = null,
+            drivingLicenseNumber = null,
+            aadhaarNumber = null,
+            aadhaarPhotoUrl = null,
+            registeredAt = null,
+            lastActiveAt = null,
+            editableFields = setOf("name")
+        )
         assertTrue(p.editableFields.contains("name"))
         assertTrue(!p.editableFields.contains("phone"))
     }

@@ -5,6 +5,7 @@ import com.daily.nexamartpartner.core.result.AppResult
 import com.daily.nexamartpartner.core.result.FailureType
 import com.daily.nexamartpartner.features.auth.data.model.AuthUserDto
 import com.daily.nexamartpartner.features.auth.data.model.LoginResponseDto
+import com.daily.nexamartpartner.features.auth.data.model.OtpSendResponseDto
 import com.daily.nexamartpartner.features.auth.data.repository.AuthRepositoryImpl
 import com.daily.nexamartpartner.features.auth.data.source.AuthRemoteDataSource
 import com.daily.nexamartpartner.features.auth.domain.model.LoginCredentials
@@ -110,6 +111,13 @@ class AuthRepositoryImplTest {
         private val loginResult: AppResult<LoginResponseDto>
     ) : AuthRemoteDataSource {
         override suspend fun login(credentials: LoginCredentials): AppResult<LoginResponseDto> = loginResult
+        override suspend fun sendPartnerOtp(phone: String): AppResult<OtpSendResponseDto> =
+            AppResult.Success(OtpSendResponseDto(success = true))
+
+        override suspend fun verifyPartnerOtp(
+            phone: String,
+            otp: String
+        ): AppResult<LoginResponseDto> = loginResult
 
         override suspend fun refresh(refreshToken: String): AppResult<LoginResponseDto> = loginResult
 
