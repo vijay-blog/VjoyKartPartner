@@ -66,7 +66,7 @@ class RegisterViewModel(
             return
         }
 
-        val phone = normalizedPhone.removePrefix("+91")
+        val phone = com.daily.nexamartpartner.core.util.PhoneNumbers.normalizeForInput(normalizedPhone)
         _uiState.update { it.copy(isSubmitting = true, formError = null, successMessage = null) }
 
         viewModelScope.launch {

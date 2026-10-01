@@ -94,6 +94,15 @@
                     android:text="@string/login_button" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/resendOtpButton"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/resend_otp_button"
+                    android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/createAccountButton"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="match_parent"

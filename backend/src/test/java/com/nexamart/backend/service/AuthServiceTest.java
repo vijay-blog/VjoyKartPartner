@@ -43,7 +43,7 @@ class AuthServiceTest {
     when(users.save(any(UserAccount.class))).thenAnswer(invocation -> invocation.getArgument(0));
     when(users.saveAndFlush(any(UserAccount.class))).thenAnswer(invocation -> invocation.getArgument(0));
     when(profiles.saveAndFlush(any(DeliveryPartnerProfile.class))).thenAnswer(invocation -> invocation.getArgument(0));
-    service = new AuthService(users, encoder, jwt, mock(AppProperties.class), profiles);
+    service = new AuthService(users, encoder, jwt, mock(AppProperties.class), profiles, new UserLookupService(users));
   }
 
   @Test

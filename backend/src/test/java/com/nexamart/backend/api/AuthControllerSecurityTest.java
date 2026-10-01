@@ -38,6 +38,9 @@ class AuthControllerSecurityTest {
 
   @Autowired MockMvc mvc;
   @MockBean AuthService authService;
+  @MockBean com.nexamart.backend.service.PartnerOtpService partnerOtpService;
+  @MockBean com.nexamart.backend.service.UserLookupService userLookupService;
+  @MockBean com.nexamart.backend.repository.DeliveryPartnerProfileRepository deliveryPartnerProfileRepository;
   @MockBean JwtService jwtService;
   @MockBean com.nexamart.backend.service.AdminService adminService;
   @MockBean com.nexamart.backend.service.CatalogService catalogService;
@@ -104,5 +107,70 @@ class AuthControllerSecurityTest {
 
     mvc.perform(post("/api/v1/auth/register").contentType("application/json").content(REGISTER_JSON))
       .andExpect(status().isOk());
+  }
+
+  @Test
+  void sendOtpIsPublicAndReturnsTheProviderChannel() throws Exception {
+    when(partnerOtpService.send(any()))
+      .thenReturn(new ApiModels.OtpSendResponse(true, "OTP sent successfully.", 300, "SMS", null));
+
+    mvc.perform(post("/api/v1/auth/partner/send-otp").contentType("application/json")
+        .content("{\"phone\":\"9959095202\"}"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.success").value(true))
+      .andExpect(jsonPath("$.deliveryChannel").value("SMS"));
+  }
+
+  @Test
+  void sendOtpForUnregisteredNumberReturnsNotFoundNotServerError() throws Exception {
+    when(partnerOtpService.send(any()))
+      .thenThrow(new ApiException(HttpStatus.NOT_FOUND, "Delivery partner not registered. Please create an account."));
+
+    mvc.perform(post("/api/v1/auth/partner/send-otp").contentType("application/json")
+        .content("{\"phone\":\"9876543210\"}"))
+      .andExpect(status().isNotFound())
+      .andExpect(jsonPath("$.message").value("Delivery partner not registered. Please create an account."));
+  }
+
+  @Test
+  void sendOtpProviderFailureReturnsServiceUnavailableWithSafeMessage() throws Exception {
+    when(partnerOtpService.send(any()))
+      .thenThrow(new ApiException(HttpStatus.SERVICE_UNAVAILABLE,
+        "OTP service configuration is missing. Please contact support. (Error ID: abc-123)"));
+
+    mvc.perform(post("/api/v1/auth/partner/send-otp").contentType("application/json")
+        .content("{\"phone\":\"9959095202\"}"))
+      .andExpect(status().isServiceUnavailable())
+      .andExpect(jsonPath("$.message").value(
+        "OTP service configuration is missing. Please contact support. (Error ID: abc-123)"));
+  }
+
+  @Test
+  void duplicateAccountsForOneNumberReturnConflictWithACorrelationIdInsteadOf500() throws Exception {
+    when(partnerOtpService.send(any()))
+      .thenThrow(new org.springframework.dao.IncorrectResultSizeDataAccessException(1, 2));
+
+    mvc.perform(post("/api/v1/auth/partner/send-otp").contentType("application/json")
+        .content("{\"phone\":\"9959095202\"}"))
+      .andExpect(status().isConflict())
+      .andExpect(jsonPath("$.errorId").exists());
+  }
+
+  @Test
+  void unexpectedFailuresStillReturnACorrelationId() throws Exception {
+    when(partnerOtpService.send(any())).thenThrow(new IllegalStateException("boom"));
+
+    mvc.perform(post("/api/v1/auth/partner/send-otp").contentType("application/json")
+        .content("{\"phone\":\"9959095202\"}"))
+      .andExpect(status().isInternalServerError())
+      .andExpect(jsonPath("$.errorId").exists())
+      .andExpect(jsonPath("$.message").value("Something went wrong. Please try again."));
+  }
+
+  @Test
+  void blankPhoneIsRejectedWithBadRequest() throws Exception {
+    mvc.perform(post("/api/v1/auth/partner/send-otp").contentType("application/json")
+        .content("{\"phone\":\"\"}"))
+      .andExpect(status().isBadRequest());
   }
 }

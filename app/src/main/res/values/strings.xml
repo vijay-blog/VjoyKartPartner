@@ -14,6 +14,7 @@
     <string name="phone_label">Mobile number</string>
     <string name="cd_phone_input">Mobile phone number input</string>
     <string name="create_account_button">Create account</string>
+    <string name="resend_otp_button">Resend OTP</string>
     <string name="create_account_creating">Creating account…</string>
     <string name="admin_login_title">Admin Login</string>
     <string name="admin_login_subtitle">Use your VJoyKart administrator credentials.</string>

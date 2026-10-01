@@ -21,12 +21,14 @@ public class AccountDeletionService {
   private final NotificationRepository notifications;
   private final EarningRepository earnings;
   private final OrderRepository orders;
+  private final UserLookupService userLookup;
 
   public AccountDeletionService(UserAccountRepository users, PasswordEncoder encoder,
       DeliveryPartnerProfileRepository profiles, NotificationRepository notifications,
-      EarningRepository earnings, OrderRepository orders) {
+      EarningRepository earnings, OrderRepository orders, UserLookupService userLookup) {
     this.users=users; this.encoder=encoder; this.profiles=profiles;
     this.notifications=notifications; this.earnings=earnings; this.orders=orders;
+    this.userLookup=userLookup;
   }
 
   @Transactional
@@ -35,7 +37,7 @@ public class AccountDeletionService {
       throw new ApiException(HttpStatus.BAD_REQUEST,"Email/phone and password are required.");
     String value=identifier.trim();
     UserAccount user=users.findByEmailIgnoreCase(value)
-        .or(()->users.findByPhone(normalizePhone(value)))
+        .or(()->userLookup.findByPhonePreferringRole(normalizePhone(value), Role.DELIVERY_PARTNER))
         .or(()->users.findByUsernameIgnoreCase(value))
         .orElseThrow(()->new ApiException(HttpStatus.NOT_FOUND,"Partner account was not found."));
     if(user.getRole()!=Role.DELIVERY_PARTNER)
@@ -53,9 +55,6 @@ public class AccountDeletionService {
   }
 
   private String normalizePhone(String value){
-    String phone=value.trim().replace(" ","").replace("-","");
-    if(phone.startsWith("+91")) phone=phone.substring(3);
-    else if(phone.startsWith("0091")) phone=phone.substring(4);
-    return phone;
+    return com.nexamart.backend.util.PhoneNumbers.normalizeForLookup(value);
   }
 }

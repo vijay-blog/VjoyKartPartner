@@ -33,6 +33,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.identifierInputEditText.doAfterTextChanged { loginViewModel.onPhoneChanged(it?.toString().orEmpty()) }
         binding.passwordInputEditText.doAfterTextChanged { loginViewModel.onOtpChanged(it?.toString().orEmpty()) }
         binding.loginButton.setOnClickListener { if (loginViewModel.uiState.value.otpSent) loginViewModel.verifyOtp() else loginViewModel.sendOtp() }
+        binding.resendOtpButton.setOnClickListener { loginViewModel.resendOtp() }
         binding.createAccountButton.setOnClickListener { findNavController().navigate(R.id.createDeliveryAccountFragment) }
         collectState()
     }
@@ -40,6 +41,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.identifierInputLayout.error=s.phoneError; binding.passwordInputLayout.error=s.otpError
         binding.passwordInputLayout.hint="6-digit OTP"; binding.passwordInputLayout.visibility=if(s.otpSent) View.VISIBLE else View.GONE; binding.passwordInputEditText.inputType=android.text.InputType.TYPE_CLASS_NUMBER; binding.passwordInputEditText.visibility=View.VISIBLE
         binding.loginButton.isEnabled=!s.isSendingOtp&&!s.isVerifying; binding.loginButton.text=when{ s.isSendingOtp->"Sending OTP…";s.isVerifying->"Verifying…";s.otpSent->"Verify & Login";else->"Send OTP" }
+        binding.resendOtpButton.visibility=if(s.canResend) View.VISIBLE else View.GONE; binding.resendOtpButton.isEnabled=!s.isSendingOtp&&!s.isVerifying
         binding.loginErrorText.visibility=if(s.formError.isNullOrBlank()) View.GONE else View.VISIBLE; binding.loginErrorText.text=s.formError
         if(s.devOtp!=null){binding.loginErrorText.visibility=View.VISIBLE;binding.loginErrorText.text="DEV OTP: ${s.devOtp}"}
     } } } }

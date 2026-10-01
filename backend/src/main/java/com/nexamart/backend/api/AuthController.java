@@ -4,9 +4,9 @@ import com.nexamart.backend.api.ApiModels.*;
 import com.nexamart.backend.exception.ApiException;
 import com.nexamart.backend.service.AuthService;
 import com.nexamart.backend.service.PartnerOtpService;
+import com.nexamart.backend.service.UserLookupService;
 import com.nexamart.backend.domain.*;
 import com.nexamart.backend.repository.DeliveryPartnerProfileRepository;
-import com.nexamart.backend.repository.UserAccountRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,8 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
-  private final AuthService auth; private final PartnerOtpService otp; private final DeliveryPartnerProfileRepository profiles; private final UserAccountRepository users;
-  public AuthController(AuthService auth, PartnerOtpService otp, DeliveryPartnerProfileRepository profiles, UserAccountRepository users) { this.auth = auth; this.otp = otp; this.profiles = profiles; this.users = users; }
+  private final AuthService auth; private final PartnerOtpService otp; private final DeliveryPartnerProfileRepository profiles; private final UserLookupService userLookup;
+  public AuthController(AuthService auth, PartnerOtpService otp, DeliveryPartnerProfileRepository profiles, UserLookupService userLookup) { this.auth = auth; this.otp = otp; this.profiles = profiles; this.userLookup = userLookup; }
 
   @PostMapping("/login")
   public LoginResponse login(@Valid @RequestBody LoginRequest request) {
@@ -38,9 +38,11 @@ public class AuthController {
   @PostMapping(value="/partner/register",consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
   public RegistrationResponse registerPartner(@RequestParam String name,@RequestParam String email,@RequestParam String phone,@RequestParam String password,@RequestParam String confirmPassword,@RequestParam(required=false) String dateOfBirth,@RequestParam(required=false) String vehicleType,@RequestParam(required=false) String vehicleNumber,@RequestParam(required=false) String drivingLicenseNumber,@RequestParam(required=false) String aadhaarNumber,@RequestPart("aadhaarPhoto") MultipartFile aadhaarPhoto) throws java.io.IOException {
     var response=auth.register(new RegisterRequest(name,email,phone,password,confirmPassword));
-    String normalized=phone.replaceAll("\\D",""); if(normalized.startsWith("91")&&normalized.length()==12) normalized=normalized.substring(2);
-    var user=users.findByPhone(normalized).orElseThrow();
-    var profile=profiles.findById(user.getId()).orElseThrow();
+    String normalized=com.nexamart.backend.util.PhoneNumbers.requireIndianMobile(phone);
+    var user=userLookup.findByPhonePreferringRole(normalized, Role.DELIVERY_PARTNER)
+        .orElseThrow(()->new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,"Partner account could not be loaded after registration."));
+    var profile=profiles.findById(user.getId())
+        .orElseThrow(()->new ApiException(HttpStatus.INTERNAL_SERVER_ERROR,"Partner profile could not be loaded after registration."));
     profile.setDateOfBirth(dateOfBirth); profile.setVehicleType(vehicleType); profile.setVehicleNumber(vehicleNumber); profile.setDrivingLicenseNumber(drivingLicenseNumber); profile.setAadhaarNumber(aadhaarNumber); profile.setAadhaarPhotoData(aadhaarPhoto.getBytes()); profile.setAadhaarPhotoContentType(aadhaarPhoto.getContentType()); profiles.save(profile);
     return response;
   }

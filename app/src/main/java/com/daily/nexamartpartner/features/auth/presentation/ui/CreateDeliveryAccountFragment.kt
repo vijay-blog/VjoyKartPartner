@@ -63,7 +63,7 @@ class CreateDeliveryAccountFragment : Fragment(R.layout.fragment_create_delivery
             }
         }
     }
-    private fun normalize(value:String):String{var p=value.trim().replace(" ","").replace("-","");if(p.startsWith("+91"))p=p.removePrefix("+91") else if(p.startsWith("0091"))p=p.removePrefix("0091");return p}
+    private fun normalize(value:String):String = com.daily.nexamartpartner.core.util.PhoneNumbers.normalizeForInput(value)
     private fun showError(message:String){binding.createAccountErrorText.text=message;if(isAdded)binding.createAccountErrorText.visibility=View.VISIBLE}
     override fun onDestroyView(){_binding=null;super.onDestroyView()}
     companion object{private val PHONE_REGEX=Regex("^[6-9]\\d{9}$")}
