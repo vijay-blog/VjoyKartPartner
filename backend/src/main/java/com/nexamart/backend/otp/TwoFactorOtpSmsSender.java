@@ -4,6 +4,7 @@ import com.nexamart.backend.config.AppProperties;
 import com.nexamart.backend.util.PhoneNumbers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -38,6 +39,7 @@ public class TwoFactorOtpSmsSender implements OtpSmsSender {
   private final AppProperties props;
   private final HttpClient http;
 
+  @Autowired
   public TwoFactorOtpSmsSender(AppProperties props) {
     this(props, HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(8))

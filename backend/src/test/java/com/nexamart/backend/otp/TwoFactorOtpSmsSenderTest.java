@@ -3,6 +3,7 @@ package com.nexamart.backend.otp;
 import com.nexamart.backend.config.AppProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -18,6 +19,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class TwoFactorOtpSmsSenderTest {
+
+  @Test
+  void productionConstructorIsExplicitlyAutowiredForSpring() throws Exception {
+    assertTrue(TwoFactorOtpSmsSender.class
+        .getConstructor(AppProperties.class)
+        .isAnnotationPresent(Autowired.class));
+  }
 
   private AppProperties props;
   private HttpClient http;
