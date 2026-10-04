@@ -5,7 +5,9 @@
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
     android:layout_weight="1"
-    app:cardCornerRadius="18dp"
+    app:cardCornerRadius="22dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/nxm_surface_variant"
     app:strokeColor="@color/nxm_outline"
     app:strokeWidth="1dp">
 
@@ -13,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="18dp">
 
         <ImageView
             android:id="@+id/kpiIcon"

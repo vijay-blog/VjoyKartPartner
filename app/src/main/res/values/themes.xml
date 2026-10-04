@@ -10,7 +10,33 @@
         <item name="colorOnSurfaceVariant">@color/nxm_on_surface_variant</item>
         <item name="colorError">@color/nxm_error</item>
         <item name="colorOnError">@color/nxm_on_error</item>
-        <item name="android:statusBarColor">@color/nxm_primary</item>
+        <item name="android:statusBarColor">@color/nxm_background</item>
+        <item name="android:navigationBarColor">@color/nxm_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
         <item name="android:windowBackground">@color/nxm_background</item>
+    </style>
+    <style name="VJoyPremiumCard" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">24dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">#33464E60</item>
+        <item name="cardBackgroundColor">@color/nxm_surface</item>
+    </style>
+    <style name="VJoyPremiumButton" parent="Widget.Material3.Button">
+        <item name="android:minHeight">56dp</item>
+        <item name="cornerRadius">28dp</item>
+    </style>
+    <style name="VJoyPremiumOutlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">54dp</item>
+        <item name="cornerRadius">27dp</item>
+        <item name="strokeColor">#669DB8FF</item>
+    </style>
+    <style name="AdminPremiumCard" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">22dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">#334F5D78</item>
+        <item name="cardBackgroundColor">@color/nxm_surface</item>
     </style>
 </resources>

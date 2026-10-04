@@ -14,7 +14,7 @@ interface DeliveryOrderWorkflowDataSource {
     suspend fun getAssignedOrders(q: DeliveryOrdersQuery): AppResult<DeliveryOrdersPageDto>
     suspend fun getHistoryOrders(q: DeliveryOrdersQuery): AppResult<DeliveryOrdersPageDto>
     suspend fun getDetails(id: String): AppResult<DeliveryOrderDetailsDto>
-    suspend fun performAction(id: String, a: DeliveryOrderAction): AppResult<Unit>
+    suspend fun performAction(id: String, a: DeliveryOrderAction, latitude: Double? = null, longitude: Double? = null): AppResult<Unit>
 }
 
 class DeliveryOrderWorkflowDataSourceImpl(
@@ -44,10 +44,10 @@ class DeliveryOrderWorkflowDataSourceImpl(
         return executor.execute { api.getOrderDetails(path) }
     }
 
-    override suspend fun performAction(id: String, a: DeliveryOrderAction): AppResult<Unit> {
+    override suspend fun performAction(id: String, a: DeliveryOrderAction, latitude: Double?, longitude: Double?): AppResult<Unit> {
         val path = contract.resolvePath(contract.actionPathTemplate, id)
             ?: return missing("Delivery order action API contract is not confirmed yet.")
-        val body = contract.buildActionBody(a)
+        val body = contract.buildActionBody(a, latitude, longitude)
             ?: return missing("Delivery order action request contract is not confirmed yet.")
         return when (val result = executor.execute { api.performAction(path, body) }) {
             is AppResult.Success -> AppResult.Success(Unit)

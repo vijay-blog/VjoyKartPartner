@@ -4,31 +4,43 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 
-/** External navigation only; the app does not request background location permission. */
+/**
+ * Opens Google Maps safely. We deliberately do not force the Google Maps package:
+ * the user may have Maps disabled, unavailable, or use another maps application.
+ */
 object DeliveryNavigationHelper {
     fun openDestination(context: Context, address: String): Boolean {
         val clean = address.trim()
         if (clean.isEmpty()) return false
 
-        val navigation = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("google.navigation:q=${Uri.encode(clean)}")
-        ).apply { setPackage("com.google.android.apps.maps") }
-        if (navigation.resolveActivity(context.packageManager) != null) {
-            context.startActivity(navigation)
-            return true
-        }
-
-        val mapsSearch = Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("geo:0,0?q=${Uri.encode(clean)}")
+        val googleNavigation = Uri.parse(
+            "https://www.google.com/maps/dir/?api=1&destination=${Uri.encode(clean)}&travelmode=driving"
         )
-        if (mapsSearch.resolveActivity(context.packageManager) != null) {
-            context.startActivity(mapsSearch)
-            return true
-        }
-        return false
+        return startView(context, googleNavigation)
+            || startView(context, Uri.parse("geo:0,0?q=${Uri.encode(clean)}"))
+            || startView(context, googleNavigation, forceBrowser = true)
     }
 
-    fun openMapsSearch(context: Context, address: String): Boolean = openDestination(context, address)
+    fun openMapsSearch(context: Context, address: String): Boolean {
+        val clean = address.trim()
+        if (clean.isEmpty()) return false
+        val search = Uri.parse(
+            "https://www.google.com/maps/search/?api=1&query=${Uri.encode(clean)}"
+        )
+        return startView(context, search)
+            || startView(context, Uri.parse("geo:0,0?q=${Uri.encode(clean)}"))
+            || startView(context, search, forceBrowser = true)
+    }
+
+    private fun startView(context: Context, uri: Uri, forceBrowser: Boolean = false): Boolean {
+        return runCatching {
+            val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                if (forceBrowser) addCategory(Intent.CATEGORY_BROWSABLE)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            if (intent.resolveActivity(context.packageManager) == null) return false
+            context.startActivity(intent)
+            true
+        }.getOrDefault(false)
+    }
 }

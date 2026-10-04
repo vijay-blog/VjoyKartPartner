@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="nxm_primary">#FF2457D6</color>
-    <color name="nxm_on_primary">#FFFFFFFF</color>
-    <color name="nxm_secondary">#FF0F766E</color>
-    <color name="nxm_on_secondary">#FFFFFFFF</color>
-    <color name="nxm_background">#FFF5F7FB</color>
-    <color name="nxm_surface">#FFFFFFFF</color>
-    <color name="nxm_on_surface">#FF111827</color>
-    <color name="nxm_outline">#FFD8DEE9</color>
-    <color name="nxm_error">#FFB3261E</color>
-    <color name="nxm_on_error">#FFFFFFFF</color>
-    <color name="nxm_surface_variant">#FFEEF2F8</color>
-    <color name="nxm_on_surface_variant">#FF536071</color>
-    <color name="nxm_success">#FF16794A</color>
-    <color name="nxm_warning">#FF9A6700</color>
+    <color name="nxm_primary">#FF9DB8FF</color>
+    <color name="nxm_on_primary">#FF12203D</color>
+    <color name="nxm_secondary">#FF6FE3D2</color>
+    <color name="nxm_on_secondary">#FF06231F</color>
+    <color name="nxm_background">#FF0B0E14</color>
+    <color name="nxm_surface">#FF151A22</color>
+    <color name="nxm_on_surface">#FFF5F2F7</color>
+    <color name="nxm_outline">#FF3A414E</color>
+    <color name="nxm_error">#FFFF8D9B</color>
+    <color name="nxm_on_error">#FF3B0710</color>
+    <color name="nxm_surface_variant">#FF202634</color>
+    <color name="nxm_on_surface_variant">#FFC5C9D4</color>
+    <color name="nxm_success">#FF67D9A7</color>
+    <color name="nxm_warning">#FFFFC66D</color>
 </resources>

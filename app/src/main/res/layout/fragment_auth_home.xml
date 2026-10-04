@@ -1,25 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:background="@color/nxm_background">
- <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
-  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="34dp" android:text="VJoyKart" android:textSize="38sp" android:textStyle="bold" android:textColor="@color/nxm_primary" />
-  <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="PARTNER" android:textSize="13sp" android:letterSpacing="0.25" android:textStyle="bold" android:textColor="@color/nxm_on_surface_variant" />
-  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Earn on your own schedule." android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall" android:textStyle="bold" />
-  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Deliver fashion orders. Stay online when you want. Manage everything from one premium workspace." android:textAppearance="@style/TextAppearance.Material3.BodyLarge" android:textColor="@color/nxm_on_surface_variant" />
-  <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" app:cardCornerRadius="28dp" app:cardElevation="4dp" app:strokeColor="@color/nxm_primary" app:strokeWidth="1dp">
-   <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="22dp">
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DELIVERY PARTNER" android:textSize="12sp" android:textStyle="bold" android:textColor="@color/nxm_primary" />
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Login with your mobile + OTP" android:textAppearance="@style/TextAppearance.Material3.TitleLarge" android:textStyle="bold" />
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="Already registered? Get a secure OTP and go straight to your dashboard." android:textAppearance="@style/TextAppearance.Material3.BodyMedium" android:textColor="@color/nxm_on_surface_variant" />
-    <com.google.android.material.button.MaterialButton android:id="@+id/deliveryLoginButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:minHeight="54dp" android:text="Delivery Partner Login" />
-   </LinearLayout>
-  </com.google.android.material.card.MaterialCardView>
-  <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" app:cardCornerRadius="24dp" app:cardElevation="1dp" app:strokeColor="@color/nxm_outline" app:strokeWidth="1dp">
-   <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ADMIN" android:textSize="12sp" android:textStyle="bold" android:textColor="@color/nxm_secondary" />
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="Manage VJoyKart operations" android:textAppearance="@style/TextAppearance.Material3.TitleLarge" android:textStyle="bold" />
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="Products • Orders • Customers • Marketplace operations" android:textAppearance="@style/TextAppearance.Material3.BodyMedium" android:textColor="@color/nxm_on_surface_variant" />
-    <com.google.android.material.button.MaterialButton android:id="@+id/adminLoginButton" style="@style/NexaMartOutlinedButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Admin Login" />
-   </LinearLayout>
-  </com.google.android.material.card.MaterialCardView>
- </LinearLayout>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_partner_premium"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="22dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="22dp"
+        android:paddingBottom="32dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <FrameLayout
+                android:layout_width="82dp"
+                android:layout_height="82dp">
+                <View
+                    android:layout_width="82dp"
+                    android:layout_height="82dp"
+                    android:background="@drawable/bg_partner_logo_glow" />
+                <ImageView
+                    android:layout_width="68dp"
+                    android:layout_height="68dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/cd_partner_logo"
+                    android:src="@drawable/vjoykart_icon" />
+            </FrameLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VJoyKart"
+                    android:textColor="@color/nxm_on_surface"
+                    android:textSize="31sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-2dp"
+                    android:letterSpacing="0.32"
+                    android:text="PARTNER"
+                    android:textColor="@color/nxm_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="Deliver more. Earn more."
+            android:textColor="@color/nxm_on_surface"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:text="Your premium delivery workspace for VJoyKart orders, earnings and live delivery updates."
+            android:textColor="@color/nxm_on_surface_variant"
+            android:textSize="16sp"
+            android:lineSpacingExtra="3dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_partner_pill"
+                android:paddingStart="12dp" android:paddingTop="7dp" android:paddingEnd="12dp" android:paddingBottom="7dp"
+                android:text="⚡ FAST PAYOUTS"
+                android:textColor="@color/nxm_primary" android:textSize="11sp" android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_partner_pill"
+                android:paddingStart="12dp" android:paddingTop="7dp" android:paddingEnd="12dp" android:paddingBottom="7dp"
+                android:text="✓ FLEXIBLE"
+                android:textColor="@color/nxm_secondary" android:textSize="11sp" android:textStyle="bold" />
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            app:cardBackgroundColor="@color/nxm_surface_variant"
+            app:cardCornerRadius="30dp"
+            app:cardElevation="8dp"
+            app:strokeColor="#779DB8FF"
+            app:strokeWidth="1dp">
+            <LinearLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="22dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DELIVERY PARTNER" android:textColor="@color/nxm_primary" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:text="Your next delivery is one tap away" android:textColor="@color/nxm_on_surface" android:textSize="22sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Login securely with your registered mobile number and OTP." android:textColor="@color/nxm_on_surface_variant" android:textSize="14sp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/deliveryLoginButton"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:minHeight="56dp"
+                    android:text="Continue as Delivery Partner" android:textSize="15sp" app:cornerRadius="18dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp"
+            app:cardBackgroundColor="@color/nxm_surface" app:cardCornerRadius="26dp" app:cardElevation="2dp" app:strokeColor="@color/nxm_outline" app:strokeWidth="1dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="19dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OPERATIONS" android:textColor="@color/nxm_secondary" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="VJoyKart Admin" android:textColor="@color/nxm_on_surface" android:textSize="19sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Products • Orders • Customers • Marketplace" android:textColor="@color/nxm_on_surface_variant" android:textSize="13sp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/adminLoginButton" style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:minHeight="50dp" android:text="Admin Login" app:cornerRadius="16dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:gravity="center" android:text="VJoyKart • Delivery Partner Network" android:textColor="@color/nxm_on_surface_variant" android:textSize="11sp" />
+    </LinearLayout>
 </androidx.core.widget.NestedScrollView>

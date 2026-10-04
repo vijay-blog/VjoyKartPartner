@@ -7,5 +7,5 @@ interface DeliveryOrderWorkflowRepository {
  suspend fun getHistoryOrders(q: DeliveryOrdersQuery): AppResult<PagedDeliveryOrders>
  suspend fun getAssignedOrders(query:DeliveryOrdersQuery):AppResult<PagedDeliveryOrders>
  suspend fun getDetails(orderId:String):AppResult<DeliveryOrderDetails>
- suspend fun performAction(orderId:String,action:DeliveryOrderAction):AppResult<Unit>
+ suspend fun performAction(orderId:String,action:DeliveryOrderAction,latitude:Double? = null,longitude:Double? = null):AppResult<Unit>
 }

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dashboardSwipeRefresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent" android:background="@color/nxm_background">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -198,14 +198,14 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/ordersActionButton"
-                        style="@style/NexaMartOutlinedButton"
+                        style="@style/VJoyPremiumOutlined"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/admin_orders" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/productsActionButton"
-                        style="@style/NexaMartOutlinedButton"
+                        style="@style/VJoyPremiumOutlined"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -213,7 +213,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/categoriesActionButton"
-                        style="@style/NexaMartOutlinedButton"
+                        style="@style/VJoyPremiumOutlined"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -221,7 +221,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/deliveryPartnersActionButton"
-                        style="@style/NexaMartOutlinedButton"
+                        style="@style/VJoyPremiumOutlined"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -229,7 +229,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/customersActionButton"
-                        style="@style/NexaMartOutlinedButton"
+                        style="@style/VJoyPremiumOutlined"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"

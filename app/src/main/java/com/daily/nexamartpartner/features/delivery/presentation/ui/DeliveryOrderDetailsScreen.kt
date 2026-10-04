@@ -6,6 +6,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import android.provider.Settings
+import android.location.LocationManager
+import androidx.core.content.ContextCompat
+import android.Manifest
+import android.content.pm.PackageManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -26,6 +31,7 @@ import com.daily.nexamartpartner.features.auth.presentation.viewmodel.AuthCoordi
 import com.daily.nexamartpartner.features.delivery.domain.model.DeliveryOrderAction
 import com.daily.nexamartpartner.features.delivery.domain.model.DeliveryOrderDetails
 import com.daily.nexamartpartner.features.delivery.presentation.location.DeliveryNavigationHelper
+import com.daily.nexamartpartner.features.delivery.presentation.location.DeliveryLocationProvider
 import com.daily.nexamartpartner.features.delivery.presentation.viewmodel.DeliveryOrderDetailsViewModel
 import com.daily.nexamartpartner.features.delivery.presentation.viewmodel.DeliveryOrderDetailsViewModelFactory
 import com.google.android.material.button.MaterialButton
@@ -42,6 +48,8 @@ class DeliveryOrderDetailsScreen : Fragment(R.layout.fragment_delivery_order_det
             requireContext().appContainer.providePerformDeliveryOrderActionUseCase()
         )
     }
+    private val locationProvider by lazy { DeliveryLocationProvider(requireContext().applicationContext) }
+
     private val auth: AuthCoordinatorViewModel by activityViewModels {
         AuthCoordinatorViewModelFactory(
             requireContext().appContainer.restoreSessionUseCase,
@@ -127,7 +135,13 @@ class DeliveryOrderDetailsScreen : Fragment(R.layout.fragment_delivery_order_det
             val button = MaterialButton(requireContext()).apply {
                 text = action.label
                 isEnabled = !busy
-                setOnClickListener { if (action == DeliveryOrderAction.COMPLETE) confirmCompletion(action, order) else confirm(action) }
+                setOnClickListener {
+                    when (action) {
+                        DeliveryOrderAction.ACCEPT -> acceptWithLocation(action)
+                        DeliveryOrderAction.COMPLETE -> confirmCompletion(action, order)
+                        else -> confirm(action)
+                    }
+                }
             }
             b.actions.addView(button)
         }
@@ -156,6 +170,33 @@ class DeliveryOrderDetailsScreen : Fragment(R.layout.fragment_delivery_order_det
                 .onFailure { Toast.makeText(requireContext(), "Unable to open proof", Toast.LENGTH_SHORT).show() }
         }
     }
+
+
+    private fun acceptWithLocation(action: DeliveryOrderAction) {
+        if (!hasLocationPermission()) {
+            Toast.makeText(requireContext(), "Location permission is required to accept a delivery. Enable Location permission and try again.", Toast.LENGTH_LONG).show()
+            return
+        }
+        val manager = requireContext().getSystemService(android.content.Context.LOCATION_SERVICE) as? LocationManager
+        if (manager != null && !manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            Toast.makeText(requireContext(), "Turn on device Location and try again.", Toast.LENGTH_LONG).show()
+            runCatching { startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
+            return
+        }
+        Toast.makeText(requireContext(), "Getting your current location…", Toast.LENGTH_SHORT).show()
+        locationProvider.getCurrentLocation { location ->
+            if (!isAdded) return@getCurrentLocation
+            if (location == null) {
+                Toast.makeText(requireContext(), "Unable to get your current location. Keep Location ON and try again.", Toast.LENGTH_LONG).show()
+            } else {
+                vm.perform(action, location.latitude, location.longitude)
+            }
+        }
+    }
+
+    private fun hasLocationPermission(): Boolean =
+        ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+        ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
     private fun confirmCompletion(action: DeliveryOrderAction, order: DeliveryOrderDetails) {
         val proofLine = when {

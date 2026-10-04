@@ -1,14 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="2dp" android:layout_marginBottom="8dp">
-<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="14dp" android:orientation="vertical">
-<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-<TextView android:id="@+id/orderId" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textStyle="bold"/>
-<TextView android:id="@+id/amount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textStyle="bold"/>
-</LinearLayout>
-<TextView android:id="@+id/description" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp"/>
-<TextView android:id="@+id/meta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textAppearance="@style/TextAppearance.Material3.BodySmall"/>
-</LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" app:cardBackgroundColor="#151A22" app:strokeColor="#333E4655" app:strokeWidth="1dp" app:cardCornerRadius="22dp"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="17dp"><LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:id="@+id/orderId" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#FFF7FC" android:textStyle="bold"/><TextView android:id="@+id/description" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="#8F98A9"/><TextView android:id="@+id/meta" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="#707A8C" android:textSize="12sp"/>
+</LinearLayout><TextView android:id="@+id/amount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#6FE3D2" android:textSize="17sp" android:textStyle="bold"/></LinearLayout></com.google.android.material.card.MaterialCardView>
