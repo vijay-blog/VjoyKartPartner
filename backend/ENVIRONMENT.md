@@ -15,6 +15,8 @@ responds `503 "OTP service configuration is missing."` — never a generic HTTP 
 
 Required:
 - `TWOFACTOR_API_KEY=<YOUR_KEY>` — 2Factor account API key. Never commit this value.
+  For existing Railway deployments, `TWOFORCE_API_KEY` and `TWO_FACTOR_API_KEY` are also
+  accepted as backwards-compatible aliases; use `TWOFACTOR_API_KEY` for new configuration.
 
 Optional (sensible defaults are built in):
 - `TWOFACTOR_OTP_TEMPLATE=<YOUR_TEMPLATE>` — custom 2Factor OTP template name. Leave unset to use

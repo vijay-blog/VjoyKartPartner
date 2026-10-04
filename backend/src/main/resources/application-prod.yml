@@ -38,7 +38,7 @@ nexamart:
   admin-password: ${ADMIN_PASSWORD:Admin@123}
   admin-email: ${ADMIN_EMAIL:admin@nexamart.local}
   admin-name: ${ADMIN_NAME:Admin}
-  otp-api-key: ${TWOFACTOR_API_KEY:}
+  otp-api-key: ${TWOFACTOR_API_KEY:${TWOFORCE_API_KEY:${TWO_FACTOR_API_KEY:}}}
   otp-template-name: ${TWOFACTOR_OTP_TEMPLATE:}
   otp-base-url: ${TWOFACTOR_BASE_URL:https://2factor.in}
   otp-timeout-seconds: ${TWOFACTOR_TIMEOUT_SECONDS:15}
@@ -49,7 +49,7 @@ nexamart:
   otp-dev-mode: ${OTP_DEV_MODE:false}
 
 twofactor:
-  api-key: ${TWOFACTOR_API_KEY:}
+  api-key: ${TWOFACTOR_API_KEY:${TWOFORCE_API_KEY:${TWO_FACTOR_API_KEY:}}}
   base-url: ${TWOFACTOR_BASE_URL:https://2factor.in}
   voice-base-url: ${TWOFACTOR_VOICE_BASE_URL:${TWOFACTOR_BASE_URL:https://2factor.in}}
   timeout-seconds: ${TWOFACTOR_TIMEOUT_SECONDS:10}

@@ -62,7 +62,7 @@ public class TwoFactorOtpSmsSender implements OtpSmsSender {
   public void send(String nationalPhone, String otp) {
     if (!isConfigured()) {
       throw new OtpProviderException(OtpProviderException.Reason.CONFIG_MISSING, null,
-          "TWOFACTOR_API_KEY is not set in the environment");
+          "TWOFACTOR_API_KEY is not set in the environment (accepted names: TWOFACTOR_API_KEY, TWOFORCE_API_KEY, TWO_FACTOR_API_KEY)");
     }
 
     HttpResponse<String> response;
