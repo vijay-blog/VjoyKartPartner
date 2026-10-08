@@ -39,10 +39,17 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(DataIntegrityViolationException.class)
-  ResponseEntity<?> dataIntegrity(DataIntegrityViolationException e) {
-    log.warn("Data integrity conflict", e);
-    return ResponseEntity.status(409)
-        .body(body("The account details are already in use or conflict with existing data.", null));
+  ResponseEntity<?> dataIntegrity(DataIntegrityViolationException e, HttpServletRequest request) {
+    String errorId = UUID.randomUUID().toString();
+    Throwable root = e.getMostSpecificCause();
+    log.warn("[ERROR_ID={}] Data integrity conflict. method={} path={} cause={}",
+        errorId, request.getMethod(), request.getRequestURI(),
+        root == null ? null : root.getMessage(), e);
+    String path = request.getRequestURI();
+    String message = path != null && path.contains("/auth/")
+        ? "The account details are already in use or conflict with existing data."
+        : "This request conflicts with existing data. Please refresh and try again.";
+    return ResponseEntity.status(409).body(body(message, errorId));
   }
 
   /**

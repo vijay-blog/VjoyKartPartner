@@ -1,5 +1,6 @@
 package com.daily.nexamartpartner.features.delivery.data.contract
 import com.daily.nexamartpartner.features.delivery.domain.model.*
+import com.daily.nexamartpartner.features.delivery.data.model.DeliveryOrderActionRequest
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -20,14 +21,13 @@ class ActiveDeliveryOrderWorkflowContract : DeliveryOrderWorkflowContract {
         normalizeToDateExclusive(query.toDate)?.let { put("toDate", it) }
     }
 
-    override fun buildActionBody(action: DeliveryOrderAction, latitude: Double?, longitude: Double?, locationRecordedAt: String?) = buildMap<String, Any> {
-        put("action", action.backendValue)
-        if (latitude != null && longitude != null) {
-            put("latitude", latitude.toString())
-            put("longitude", longitude.toString())
-            locationRecordedAt?.let { put("locationRecordedAt", it) }
-        }
-    }
+    override fun buildActionBody(action: DeliveryOrderAction, latitude: Double?, longitude: Double?, locationRecordedAt: String?) =
+        DeliveryOrderActionRequest(
+            action = action.backendValue,
+            latitude = latitude,
+            longitude = longitude,
+            locationRecordedAt = locationRecordedAt
+        )
 
     override fun resolvePath(template: String?, orderId: String) = template?.replace("{id}", orderId)
 

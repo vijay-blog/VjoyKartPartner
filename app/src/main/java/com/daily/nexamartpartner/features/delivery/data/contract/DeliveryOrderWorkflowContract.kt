@@ -2,6 +2,7 @@ package com.daily.nexamartpartner.features.delivery.data.contract
 
 import com.daily.nexamartpartner.features.delivery.domain.model.DeliveryOrderAction
 import com.daily.nexamartpartner.features.delivery.domain.model.DeliveryOrdersQuery
+import com.daily.nexamartpartner.features.delivery.data.model.DeliveryOrderActionRequest
 
 interface DeliveryOrderWorkflowContract {
     val listAssignedOrdersPath: String?
@@ -9,7 +10,7 @@ interface DeliveryOrderWorkflowContract {
     val orderDetailsPathTemplate: String?
     val actionPathTemplate: String?
     fun buildListQuery(query: DeliveryOrdersQuery): Map<String,String>?
-    fun buildActionBody(action: DeliveryOrderAction, latitude: Double? = null, longitude: Double? = null, locationRecordedAt: String? = null): Map<String,Any>?
+    fun buildActionBody(action: DeliveryOrderAction, latitude: Double? = null, longitude: Double? = null, locationRecordedAt: String? = null): DeliveryOrderActionRequest?
     fun resolvePath(template: String?, orderId: String): String?
 }
 
@@ -19,6 +20,6 @@ class PendingBackendDeliveryOrderWorkflowContract : DeliveryOrderWorkflowContrac
     override val orderDetailsPathTemplate: String? = null
     override val actionPathTemplate: String? = null
     override fun buildListQuery(query: DeliveryOrdersQuery): Map<String,String>? = null
-    override fun buildActionBody(action: DeliveryOrderAction, latitude: Double?, longitude: Double?, locationRecordedAt: String?): Map<String,Any>? = null
+    override fun buildActionBody(action: DeliveryOrderAction, latitude: Double?, longitude: Double?, locationRecordedAt: String?): DeliveryOrderActionRequest? = null
     override fun resolvePath(template: String?, orderId: String): String? = null
 }
