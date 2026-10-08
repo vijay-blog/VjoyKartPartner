@@ -4,12 +4,13 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import java.util.concurrent.atomic.AtomicBoolean
 
 /** Gets a fresh-enough device location for delivery actions such as accepting an order. */
 class DeliveryLocationProvider(private val context: Context) {
@@ -21,68 +22,56 @@ class DeliveryLocationProvider(private val context: Context) {
             return
         }
 
-        val manager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
-        if (manager == null) {
+        val manager = context.getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
+        if (manager == null || !isLocationEnabled(manager)) {
             onResult(null)
             return
         }
 
-        val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
-            .filter { runCatching { manager.isProviderEnabled(it) }.getOrDefault(false) }
-
-        if (providers.isEmpty()) {
-            onResult(null)
-            return
-        }
-
-        val delivered = java.util.concurrent.atomic.AtomicBoolean(false)
+        val delivered = AtomicBoolean(false)
         val handler = Handler(Looper.getMainLooper())
-        val listener = object : LocationListener {
-            override fun onLocationChanged(location: Location) {
-                if (delivered.compareAndSet(false, true)) {
-                    cleanup(manager, providers, this, handler)
-                    onResult(location)
-                }
-            }
-            override fun onProviderEnabled(provider: String) = Unit
-            override fun onProviderDisabled(provider: String) = Unit
-            @Deprecated("Deprecated in Android API 29") override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) = Unit
-        }
-
-        var requested = false
-        providers.forEach { provider ->
-            runCatching {
-                manager.requestLocationUpdates(provider, 1_000L, 5f, listener, Looper.getMainLooper())
-                requested = true
-            }
-        }
-
-        // A recent cached location is better than blocking the accept flow when GPS is slow.
-        val cached = providers.asSequence()
-            .mapNotNull { runCatching { manager.getLastKnownLocation(it) }.getOrNull() }
-            .filter { System.currentTimeMillis() - it.time <= 120_000L }
-            .maxByOrNull { it.time }
-        if (cached != null && delivered.compareAndSet(false, true)) {
-            cleanup(manager, providers, listener, handler)
-            onResult(cached)
-            return
-        }
-
-        if (!requested) {
-            onResult(null)
-            return
-        }
-
-        handler.postDelayed({
+        val client = LocationServices.getFusedLocationProviderClient(context)
+        fun finish(location: Location?) {
             if (delivered.compareAndSet(false, true)) {
-                cleanup(manager, providers, listener, handler)
-                onResult(null)
+                handler.removeCallbacksAndMessages(null)
+                onResult(location?.takeIf(::isUsable))
             }
-        }, 10_000L)
+        }
+        try {
+            client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener { current ->
+                    if (isUsable(current)) finish(current)
+                    else client.lastLocation
+                        .addOnSuccessListener { cached -> finish(cached?.takeIf(::isUsable)) }
+                        .addOnFailureListener { finish(null) }
+                }
+                .addOnFailureListener {
+                    client.lastLocation
+                        .addOnSuccessListener { cached -> finish(cached?.takeIf(::isUsable)) }
+                        .addOnFailureListener { finish(null) }
+                }
+        } catch (_: SecurityException) {
+            finish(null)
+        }
+        handler.postDelayed({
+            finish(null)
+        }, LOCATION_TIMEOUT_MS)
     }
 
-    private fun cleanup(manager: LocationManager, providers: List<String>, listener: LocationListener, handler: Handler) {
-        providers.forEach { runCatching { manager.removeUpdates(listener) } }
-        handler.removeCallbacksAndMessages(null)
+    private fun isLocationEnabled(manager: android.location.LocationManager): Boolean =
+        runCatching {
+            manager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) ||
+                manager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
+        }.getOrDefault(false)
+
+    private fun isUsable(location: Location?): Boolean {
+        if (location == null || !location.latitude.isFinite() || !location.longitude.isFinite()) return false
+        if (location.latitude !in -90.0..90.0 || location.longitude !in -180.0..180.0) return false
+        return System.currentTimeMillis() - location.time <= CACHE_MAX_AGE_MS
+    }
+
+    companion object {
+        private const val LOCATION_TIMEOUT_MS = 20_000L
+        private const val CACHE_MAX_AGE_MS = 120_000L
     }
 }

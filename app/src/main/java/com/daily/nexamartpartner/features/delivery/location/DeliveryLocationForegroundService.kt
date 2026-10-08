@@ -24,6 +24,7 @@ import com.daily.nexamartpartner.features.delivery.availability.domain.model.Del
 import com.daily.nexamartpartner.features.delivery.notifications.domain.model.DeliveryNotificationQuery
 import com.daily.nexamartpartner.core.result.AppResult
 import kotlinx.coroutines.*
+import java.time.Instant
 
 /**
  * Keeps the delivery partner's location fresh while they are online and posts
@@ -122,7 +123,8 @@ class DeliveryLocationForegroundService : Service() {
             DeliveryAvailabilityUpdate(
                 available = true,
                 latitude = location.latitude,
-                longitude = location.longitude
+                longitude = location.longitude,
+                recordedAt = Instant.ofEpochMilli(location.time).toString()
             )
         )
         if (result is AppResult.Failure && result.error.type.name == "UNAUTHORIZED") {

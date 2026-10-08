@@ -6,15 +6,18 @@ public final class ApiModels{private ApiModels(){}
  public record RefreshRequest(@NotBlank String refreshToken){}
  public record UserResponse(Long id,String name,String phone,String email,String role){}
  public record LoginResponse(String accessToken,String refreshToken,UserResponse user){} public record RegistrationResponse(String message){}
- public record ActionRequest(@NotBlank String action,String reason,Double latitude,Double longitude){}
+ public record OtpRequest(@NotBlank String phone){}
+ public record VerifyOtpRequest(@NotBlank String phone,@NotBlank String otp){}
+ public record OtpSendResponse(boolean success,String message,int expiresInSeconds,String deliveryChannel,String devOtp){}
+ public record ActionRequest(@NotBlank String action,String reason,Double latitude,Double longitude,Instant locationRecordedAt){}
  public record OrderStatusRequest(@NotBlank String status){}
  public record CancelRequest(String reason){}
  public record AssignRequest(@NotNull Long deliveryPartnerId){}
  public record OrderItemRequest(@NotNull Long productId,@Min(1) int quantity){}
  public record AddressRequest(@NotBlank String recipientName,String phone,@NotBlank String addressLine,String city,String state,String postalCode,Double latitude,Double longitude,boolean defaultAddress){}
  public record CreateOrderRequest(@NotEmpty List<OrderItemRequest> items,@NotNull AddressRequest address,PaymentMethod paymentMethod){}
- public record ProfileUpdate(String name,String email,String vehicleType,String vehicleNumber,String licenseReference){}
- public record AvailabilityRequest(boolean available){}
+ public record ProfileUpdate(String name,String email,String vehicleType,String vehicleNumber,String licenseReference,String dateOfBirth,String drivingLicenseNumber,String aadhaarNumber){}
+ public record AvailabilityRequest(boolean available,Double latitude,Double longitude){}
  public record PageResponse<T>(List<T> content,int page,int pageSize,int totalPages,long totalElements,boolean hasNextPage,int number,int size,boolean last){public PageResponse(List<T> content,int page,int pageSize,int totalPages,long totalElements,boolean hasNextPage){this(content,page,pageSize,totalPages,totalElements,hasNextPage,page,pageSize,!hasNextPage);}}
  public record OrderItemResponse(Long id,Long productId,String productName,BigDecimal unitPrice,int quantity,BigDecimal lineTotal){}
  public record PaymentInfoDto(String method,String status,String transactionReference){}
@@ -34,9 +37,10 @@ public final class ApiModels{private ApiModels(){}
  public record PartnerOrderSummary(String orderId,String status,String timestamp){}
  public record DashboardResponse(Long totalOrders,Long todayOrders,Long pendingOrders,Long outForDelivery,Long deliveredToday,Double todaySales,String currencyCode,List<AdminRecentOrder> recentOrders){}
  public record AvailabilityResponse(boolean available,String status,boolean canChange,String reason,Instant updatedAt){}
- public record ProfileResponse(Long id,String name,String phone,String email,String profileImageUrl,String verificationStatus,String accountStatus,String vehicleType,String vehicleNumber,String licenseReference,Instant registeredAt,Instant lastActiveAt,List<String> editableFields){}
+ public record ProfileResponse(Long id,String name,String phone,String email,String profileImageUrl,String verificationStatus,String accountStatus,String vehicleType,String vehicleNumber,String licenseReference,String dateOfBirth,String drivingLicenseNumber,String aadhaarNumber,String aadhaarPhotoUrl,Instant registeredAt,Instant lastActiveAt,List<String> editableFields){}
  public record NotificationResponse(String id,String title,String message,Instant createdAt,boolean read,String type,Long orderId,String actionUrl){}
  public record EarningsSummary(String currencyCode,BigDecimal today,BigDecimal thisWeek,BigDecimal thisMonth,long completedDeliveries,BigDecimal pendingPayout,BigDecimal totalEarned){}
  public record EarningResponse(String id,Long orderId,Instant earnedAt,BigDecimal amount,String currencyCode,String status,String description){}
  public record ProofRequest(String notes,String proofUrl){}
+ public record LocationUpdateRequest(@NotNull @DecimalMin("-90.0") @DecimalMax("90.0") Double latitude,@NotNull @DecimalMin("-180.0") @DecimalMax("180.0") Double longitude,Instant recordedAt){}
 }

@@ -8,4 +8,9 @@ data class DeliveryAvailability(
     val updatedAt: String? = null
 )
 
-data class DeliveryAvailabilityUpdate(val available: Boolean, val latitude: Double? = null, val longitude: Double? = null)
+data class DeliveryAvailabilityUpdate(
+    val available: Boolean,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val recordedAt: String? = null
+)

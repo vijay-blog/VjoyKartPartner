@@ -12,8 +12,8 @@ android {
         applicationId = "com.daily.nexamartpartner"
         minSdk = 24
         targetSdk = 37
-        versionCode = 6
-        versionName = "1.1.3"
+        versionCode = 7
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.play.services.location)
     implementation(libs.androidx.security.crypto)
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.moshi)

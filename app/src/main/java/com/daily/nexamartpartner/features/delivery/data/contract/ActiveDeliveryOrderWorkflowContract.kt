@@ -20,11 +20,12 @@ class ActiveDeliveryOrderWorkflowContract : DeliveryOrderWorkflowContract {
         normalizeToDateExclusive(query.toDate)?.let { put("toDate", it) }
     }
 
-    override fun buildActionBody(action: DeliveryOrderAction, latitude: Double?, longitude: Double?) = buildMap {
+    override fun buildActionBody(action: DeliveryOrderAction, latitude: Double?, longitude: Double?, locationRecordedAt: String?) = buildMap<String, Any> {
         put("action", action.backendValue)
         if (latitude != null && longitude != null) {
             put("latitude", latitude.toString())
             put("longitude", longitude.toString())
+            locationRecordedAt?.let { put("locationRecordedAt", it) }
         }
     }
 

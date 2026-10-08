@@ -16,6 +16,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.core.net.toUri
 import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -36,6 +37,7 @@ import com.daily.nexamartpartner.features.delivery.presentation.viewmodel.Delive
 import com.daily.nexamartpartner.features.delivery.presentation.viewmodel.DeliveryOrderDetailsViewModelFactory
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 class DeliveryOrderDetailsScreen : Fragment(R.layout.fragment_delivery_order_details) {
     private var _binding: FragmentDeliveryOrderDetailsBinding? = null
@@ -49,6 +51,53 @@ class DeliveryOrderDetailsScreen : Fragment(R.layout.fragment_delivery_order_det
         )
     }
     private val locationProvider by lazy { DeliveryLocationProvider(requireContext().applicationContext) }
+    private var pendingAcceptAction: DeliveryOrderAction? = null
+    private var locationRequestInProgress = false
+
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        val precise = result[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        val granted = precise || result[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        val action = pendingAcceptAction
+        pendingAcceptAction = null
+        if (precise && action != null) {
+            acceptWithLocation(action)
+        } else if (granted && !precise && isAdded) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Precise location required")
+                .setMessage("Precise location is required to verify the pickup radius before accepting this delivery.")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Open Settings") { _, _ ->
+                    startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:${requireContext().packageName}")))
+                }
+                .show()
+        } else if (!granted && isAdded) {
+            val permanentlyDenied = !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) &&
+                !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
+            AlertDialog.Builder(requireContext())
+                .setTitle("Location permission required")
+                .setMessage("Location permission is required to accept this delivery.")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton(if (permanentlyDenied) "Open Settings" else "Try Again") { _, _ ->
+                    if (permanentlyDenied) startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:${requireContext().packageName}")))
+                    else {
+                        pendingAcceptAction = action
+                        requestLocationPermission()
+                    }
+
+                }
+                .show()
+        }
+    }
+
+    private fun requestLocationPermission() {
+        locationPermissionLauncher.launch(
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+        )
+    }
 
     private val auth: AuthCoordinatorViewModel by activityViewModels {
         AuthCoordinatorViewModelFactory(
@@ -133,7 +182,7 @@ class DeliveryOrderDetailsScreen : Fragment(R.layout.fragment_delivery_order_det
         if (order.allowedActions.isEmpty()) addLine(b.actions, "No actions available for this order")
         else order.allowedActions.forEach { action ->
             val button = MaterialButton(requireContext()).apply {
-                text = action.label
+                text = if (action == DeliveryOrderAction.ACCEPT && locationRequestInProgress) "Getting Location..." else action.label
                 isEnabled = !busy
                 setOnClickListener {
                     when (action) {
@@ -173,30 +222,44 @@ class DeliveryOrderDetailsScreen : Fragment(R.layout.fragment_delivery_order_det
 
 
     private fun acceptWithLocation(action: DeliveryOrderAction) {
-        if (!hasLocationPermission()) {
-            Toast.makeText(requireContext(), "Location permission is required to accept a delivery. Enable Location permission and try again.", Toast.LENGTH_LONG).show()
+        if (!hasPreciseLocationPermission()) {
+            pendingAcceptAction = action
+            requestLocationPermission()
             return
         }
         val manager = requireContext().getSystemService(android.content.Context.LOCATION_SERVICE) as? LocationManager
-        if (manager != null && !manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            Toast.makeText(requireContext(), "Turn on device Location and try again.", Toast.LENGTH_LONG).show()
-            runCatching { startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }
+        val enabled = manager != null && runCatching {
+            manager.isProviderEnabled(LocationManager.GPS_PROVIDER) || manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        }.getOrDefault(false)
+        if (!enabled) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Location is turned off")
+                .setMessage("Please enable Location services to accept delivery orders.")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Open Settings") { _, _ ->
+                    startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                }
+                .show()
             return
         }
-        Toast.makeText(requireContext(), "Getting your current location…", Toast.LENGTH_SHORT).show()
+        locationRequestInProgress = true
+        render(vm.state.value)
+        Toast.makeText(requireContext(), "Getting your location...", Toast.LENGTH_SHORT).show()
         locationProvider.getCurrentLocation { location ->
             if (!isAdded) return@getCurrentLocation
+            locationRequestInProgress = false
             if (location == null) {
-                Toast.makeText(requireContext(), "Unable to get your current location. Keep Location ON and try again.", Toast.LENGTH_LONG).show()
+                render(vm.state.value)
+                Toast.makeText(requireContext(), "Your current location is not available yet. Please wait a few seconds and try again.", Toast.LENGTH_LONG).show()
             } else {
-                vm.perform(action, location.latitude, location.longitude)
+                render(vm.state.value)
+                vm.perform(action, location.latitude, location.longitude, Instant.ofEpochMilli(location.time).toString())
             }
         }
     }
 
-    private fun hasLocationPermission(): Boolean =
-        ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-        ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    private fun hasPreciseLocationPermission(): Boolean =
+        ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
     private fun confirmCompletion(action: DeliveryOrderAction, order: DeliveryOrderDetails) {
         val proofLine = when {

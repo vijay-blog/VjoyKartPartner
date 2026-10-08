@@ -9,7 +9,7 @@ interface DeliveryOrderWorkflowContract {
     val orderDetailsPathTemplate: String?
     val actionPathTemplate: String?
     fun buildListQuery(query: DeliveryOrdersQuery): Map<String,String>?
-    fun buildActionBody(action: DeliveryOrderAction, latitude: Double? = null, longitude: Double? = null): Map<String,String>?
+    fun buildActionBody(action: DeliveryOrderAction, latitude: Double? = null, longitude: Double? = null, locationRecordedAt: String? = null): Map<String,Any>?
     fun resolvePath(template: String?, orderId: String): String?
 }
 
@@ -19,6 +19,6 @@ class PendingBackendDeliveryOrderWorkflowContract : DeliveryOrderWorkflowContrac
     override val orderDetailsPathTemplate: String? = null
     override val actionPathTemplate: String? = null
     override fun buildListQuery(query: DeliveryOrdersQuery): Map<String,String>? = null
-    override fun buildActionBody(action: DeliveryOrderAction, latitude: Double?, longitude: Double?): Map<String,String>? = null
+    override fun buildActionBody(action: DeliveryOrderAction, latitude: Double?, longitude: Double?, locationRecordedAt: String?): Map<String,Any>? = null
     override fun resolvePath(template: String?, orderId: String): String? = null
 }
